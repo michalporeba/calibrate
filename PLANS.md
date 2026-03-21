@@ -67,3 +67,4 @@ Test and extend the model against other structured self-assessments and reflecti
 - `plans/008-gdad-template-structure.md`
 - `plans/009-generic-item-variants.md`
 - `plans/010-first-taker-calibration-flow.md`
+- `plans/011-template-model-reference.md`

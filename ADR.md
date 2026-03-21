@@ -150,6 +150,9 @@ selects the variant key to use for each item. This allows templates such as
 GDaD to drive skill selection and variant choice through role-level without
 hard-coding that behavior into the application.
 
+The maintained explanation of the current template model, configuration
+patterns, and semantics belongs in `TEMPLATE_MODEL.md` rather than in this ADR.
+
 ## UX and Design Constraints
 
 - The UI should support long, reflective tasks without overwhelming the user.

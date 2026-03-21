@@ -189,6 +189,7 @@ The maintained project documents have distinct roles:
 
 - `README.md`: project manifest, intent, scope, and product north star
 - `ADR.md`: accepted architectural decisions, technical constraints, and UX/system-level constraints
+- `TEMPLATE_MODEL.md`: maintained reference for template structure, semantics, and current configuration patterns
 - `PLANS.md`: ordered high-level roadmap
 - `plans/*.md`: implementation-ready feature plans
 - `WIP.md`: temporary session state during active work
