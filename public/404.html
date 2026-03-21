@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calibrate</title>
+    <script type="text/javascript">
+      (function redirectGitHubPagesRoute(location) {
+        var pathSegmentsToKeep = 1;
+        var pathname = location.pathname
+          .split("/")
+          .slice(0, 1 + pathSegmentsToKeep)
+          .join("/");
+        var route = location.pathname
+          .slice(pathname.length)
+          .replace(/&/g, "~and~");
+        var search = location.search ? location.search.replace(/&/g, "~and~") : "";
+        var nextUrl = pathname + "/?/" + route + search + location.hash;
+
+        location.replace(nextUrl);
+      })(window.location);
+    </script>
+  </head>
+  <body></body>
+</html>
