@@ -1,0 +1,18 @@
+id: era
+name: ERA reflection cycle
+kind: self-reflection
+summary: >
+  A very simple reflection template based on Experience, Reflection, and Action.
+description: >
+  This starter template gives both hosted profiles a shared reflection example
+  while remaining intentionally simple.
+items:
+  - id: experience
+    label: Experience
+    prompt: What happened, and what stands out from the experience?
+  - id: reflection
+    label: Reflection
+    prompt: What have you learned or noticed on reflection?
+  - id: action
+    label: Action
+    prompt: What will you do differently, continue, or explore next?

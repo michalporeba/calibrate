@@ -60,3 +60,4 @@ Test and extend the model against other structured self-assessments and reflecti
 - `plans/001-first-user-flow.md`
 - `plans/002-dual-theme-architecture.md`
 - `plans/003-parallel-local-theme-development.md`
+- `plans/004-local-template-catalogue-and-explore.md`

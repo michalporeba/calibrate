@@ -6,6 +6,37 @@ import { fileURLToPath } from "node:url";
 const repoRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const distDir = resolve(repoRoot, "dist");
 
+function writeTheme404(theme) {
+  writeFileSync(
+    resolve(distDir, theme, "404.html"),
+    `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Calibrate</title>
+    <script>
+      (function redirectGitHubPagesRoute(location) {
+        var pathSegmentsToKeep = 2;
+        var pathname = location.pathname
+          .split("/")
+          .slice(0, 1 + pathSegmentsToKeep)
+          .join("/");
+        var route = location.pathname
+          .slice(pathname.length)
+          .replace(/&/g, "~and~");
+        var search = location.search ? location.search.replace(/&/g, "~and~") : "";
+        var nextUrl = pathname + "/?/" + route + search + location.hash;
+
+        location.replace(nextUrl);
+      })(window.location);
+    </script>
+  </head>
+  <body></body>
+</html>
+`,
+  );
+}
+
 rmSync(distDir, { force: true, recursive: true });
 mkdirSync(distDir, { recursive: true });
 
@@ -15,11 +46,13 @@ execFileSync(viteBin, ["build", "--mode", "pages-me", "--outDir", "dist/me"], {
   cwd: repoRoot,
   stdio: "inherit",
 });
+writeTheme404("me");
 
 execFileSync(viteBin, ["build", "--mode", "pages-gds", "--outDir", "dist/gds"], {
   cwd: repoRoot,
   stdio: "inherit",
 });
+writeTheme404("gds");
 
 writeFileSync(
   resolve(distDir, "index.html"),

@@ -1,0 +1,39 @@
+id: gdad
+name: GDaD capability self-assessment
+kind: self-assessment
+summary: >
+  A stub capability template for structured reflection against a GDaD-style role,
+  level, and evidence model.
+description: >
+  This starter template proves the context-heavy calibration model. It should
+  later support role family, role, and level selection before a calibration is
+  created.
+dimensions:
+  - id: role-family
+    label: Role family
+    options:
+      - id: data
+        label: Data
+      - id: design
+        label: Design
+  - id: role
+    label: Role
+    options:
+      - id: data-analyst
+        label: Data Analyst
+      - id: interaction-designer
+        label: Interaction Designer
+  - id: level
+    label: Level
+    options:
+      - id: practitioner
+        label: Practitioner
+      - id: senior-practitioner
+        label: Senior Practitioner
+items:
+  - id: capability
+    label: Capability
+    prompt: Describe how you currently demonstrate the role capability.
+  - id: evidence
+    label: Evidence
+    prompt: Record examples that support your judgement.

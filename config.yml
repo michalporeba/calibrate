@@ -1,0 +1,20 @@
+profiles:
+  me:
+    enabledTemplates:
+      - gibbs
+      - era
+  gds:
+    enabledTemplates:
+      - gdad
+      - era
+
+templates:
+  - id: gdad
+    source: templates/gdad
+    entry: template.yml
+  - id: gibbs
+    source: templates/gibbs
+    entry: template.yml
+  - id: era
+    source: templates/era
+    entry: template.yml

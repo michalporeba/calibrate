@@ -1,0 +1,28 @@
+id: gibbs
+name: Gibb's reflective model
+kind: self-reflection
+summary: >
+  A standalone reflection template implementing Gibb's six-stage reflective
+  model for structured personal learning.
+description: >
+  This starter template follows the description, feelings, evaluation,
+  analysis, conclusion, and action plan stages of Gibb's reflective model.
+items:
+  - id: description
+    label: Description
+    prompt: Describe what happened, including the context and the key events.
+  - id: feelings
+    label: Feelings
+    prompt: What were you thinking and feeling during the experience?
+  - id: evaluation
+    label: Evaluation
+    prompt: What was helpful, effective, difficult, or uncomfortable about it?
+  - id: analysis
+    label: Analysis
+    prompt: What sense do you make of the experience now, and why?
+  - id: conclusion
+    label: Conclusion
+    prompt: What else could you have done, and what have you learned from it?
+  - id: action-plan
+    label: Action plan
+    prompt: What will you do next time, continue, or change in future practice?

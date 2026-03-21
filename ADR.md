@@ -103,6 +103,18 @@ The application should be designed for internationalisation from the beginning, 
 
 Shared organisational storage and review backends are important, but they should not drive the architecture at the expense of the local-first personal experience.
 
+### 23. Initial template distribution is local and YAML-based
+
+The first template distribution model should use local template directories in the repository and YAML source files. This keeps template development simple, browser-first, and fully usable without external template hosting.
+
+### 24. Template publication is profile-configured
+
+The application should use a checked-in catalogue config to define which templates are enabled for each build profile. Profile names may be maintained manually and should match the active hosted variants such as `me` and `gds`.
+
+### 25. Browser loading uses generated static assets
+
+The browser application should load template catalogues and template source from served static assets generated from the local source directories. The app should not read repo files directly at runtime.
+
 ## UX and Design Constraints
 
 - The UI should support long, reflective tasks without overwhelming the user.

@@ -118,6 +118,8 @@ Personal data storage should be built around SOLID Pods as a core architectural 
 
 The precise organisational backend model is not fixed yet. What is fixed is the requirement that Calibrate must bridge personal ownership and institutional process rather than choose one at the expense of the other.
 
+The first template-authoring path should stay local and offline-friendly. Template packages start as YAML files in local directories, with the application serving profile-specific template catalogues from those local sources.
+
 ## AI and AICA
 
 AICA is part of how this project is developed. The README serves as a north star for future AICA-assisted design and implementation work by making the project intent, scope, and principles explicit.
@@ -167,6 +169,8 @@ The Pages build publishes:
 - `/calibrate/` as a simple static chooser page
 - `/calibrate/me/` as the personal theme
 - `/calibrate/gds/` as the GDS-aligned theme
+
+Local template packages live in `templates/`, and `config.yml` controls which templates are enabled for each hosted profile. The build and dev workflow synchronises those local sources into served static assets for the app and the `/explore` tool.
 
 ## Project Documents
 
