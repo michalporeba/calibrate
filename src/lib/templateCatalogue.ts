@@ -6,11 +6,11 @@ export type CatalogueTemplateEntry = {
   entry: string;
   enabled: boolean;
   templatePath: string;
+  sourceText?: string | null;
   metadata: {
     id: string;
     name: string;
     summary: string;
-    kind: string;
     extends: string | null;
     dimensions: number;
     items: number;
@@ -24,28 +24,48 @@ export type CatalogueManifest = {
   templates: CatalogueTemplateEntry[];
 };
 
+type OrderedMap<T> = Record<string, T>;
+
+type TemplateDimensionDocument = {
+  label?: string;
+  options?: OrderedMap<{ label?: string }>;
+};
+
+type TemplateItemDocument = {
+  label?: string;
+  prompt?: string;
+  guidance?: string | string[];
+  indicators?: string | string[];
+};
+
 export type TemplateDocument = {
   id?: string;
   name?: string;
-  kind?: string;
   summary?: string;
   description?: string;
+  guidance?: string | string[];
   extends?: string;
-  dimensions?: Array<{
-    id?: string;
-    label?: string;
-    options?: Array<{ id?: string; label?: string }>;
-  }>;
-  items?: Array<{
-    id?: string;
-    label?: string;
-    prompt?: string;
-  }>;
+  dimensions?: OrderedMap<TemplateDimensionDocument>;
+  items?: OrderedMap<TemplateItemDocument>;
 };
 
 export type ValidationIssue = {
   level: "error" | "warning";
   message: string;
+};
+
+type ResolvedDimension = {
+  id: string;
+  label: string;
+  optionCount: number;
+};
+
+type ResolvedItem = {
+  id: string;
+  label: string;
+  prompt: string;
+  guidance: string[];
+  indicators: string[];
 };
 
 export type TemplateInspection = {
@@ -56,10 +76,11 @@ export type TemplateInspection = {
   resolvedSummary: {
     id: string;
     name: string;
-    kind: string;
     summary: string;
-    dimensions: Array<{ id: string; label: string; optionCount: number }>;
-    items: Array<{ id: string; label: string; prompt: string }>;
+    description: string;
+    guidance: string[];
+    dimensions: ResolvedDimension[];
+    items: ResolvedItem[];
   } | null;
 };
 
@@ -71,39 +92,160 @@ function assetPath(path: string) {
   return `${base}${path}`.replace(/([^:]\/)\/+/g, "$1");
 }
 
+function assetCandidates(path: string) {
+  const candidates = [
+    assetPath(path),
+    `/${path}`.replace(/\/+/g, "/"),
+    new URL(path, window.location.href).pathname,
+  ];
+
+  return Array.from(new Set(candidates));
+}
+
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizeStringList(value: unknown) {
+  if (typeof value === "string") {
+    return isNonEmptyString(value) ? [value.trim()] : [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.filter(isNonEmptyString).map((entry) => entry.trim());
+  }
+
+  return [];
+}
+
+function isStringList(value: unknown) {
+  return (
+    value === undefined ||
+    typeof value === "string" ||
+    (Array.isArray(value) && value.every((entry) => typeof entry === "string"))
+  );
 }
 
 function parseTemplate(text: string) {
   return YAML.parse(text) as TemplateDocument;
 }
 
-async function loadTemplateText(path: string) {
-  const response = await fetch(assetPath(path));
-
-  if (!response.ok) {
-    throw new Error(`Unable to load template source (${response.status}).`);
+async function loadTemplateText(path: string, inlineSource?: string | null) {
+  if (isNonEmptyString(inlineSource)) {
+    return inlineSource;
   }
 
-  return response.text();
+  let lastStatus: number | null = null;
+
+  for (const candidate of assetCandidates(path)) {
+    const response = await fetch(candidate, { cache: "no-store" });
+
+    if (!response.ok) {
+      lastStatus = response.status;
+      continue;
+    }
+
+    const text = await response.text();
+
+    if (text.trim().startsWith("<")) {
+      continue;
+    }
+
+    return text;
+  }
+
+  throw new Error(
+    `Unable to load template source${lastStatus ? ` (${lastStatus})` : ""}.`,
+  );
 }
 
 export async function loadCatalogue(profile: "me" | "gds" = __APP_THEME__) {
-  const requestPath = assetPath(`generated/catalogues/${profile}.json`);
-  const response = await fetch(requestPath);
+  const path = `generated/catalogues/${profile}.json`;
+  let lastStatus: number | null = null;
 
-  if (!response.ok) {
-    throw new Error(`Unable to load catalogue (${response.status}).`);
+  for (const candidate of assetCandidates(path)) {
+    const response = await fetch(candidate, { cache: "no-store" });
+
+    if (!response.ok) {
+      lastStatus = response.status;
+      continue;
+    }
+
+    const text = await response.text();
+
+    try {
+      return JSON.parse(text) as CatalogueManifest;
+    } catch {
+      if (text.trim().startsWith("<")) {
+        continue;
+      }
+    }
   }
 
-  const text = await response.text();
+  throw new Error(
+    `Catalogue could not be parsed from any expected path${lastStatus ? ` (${lastStatus})` : ""}.`,
+  );
+}
 
-  try {
-    return JSON.parse(text) as CatalogueManifest;
-  } catch {
-    throw new Error(`Catalogue could not be parsed from ${requestPath}.`);
+function orderedEntries<T>(value: OrderedMap<T> | undefined): Array<[string, T]> {
+  return value ? Object.entries(value) : [];
+}
+
+function resolveDimensions(
+  document: TemplateDocument,
+  parent: TemplateInspection["resolvedSummary"],
+) {
+  const ownDimensions = orderedEntries(document.dimensions);
+
+  if (ownDimensions.length === 0) {
+    return parent?.dimensions ?? [];
   }
+
+  return ownDimensions.map(([dimensionId, dimension]) => ({
+    id: dimensionId,
+    label: isNonEmptyString(dimension?.label) ? dimension.label : "Unnamed dimension",
+    optionCount: orderedEntries(dimension?.options).length,
+  }));
+}
+
+function resolveItems(
+  document: TemplateDocument,
+  parent: TemplateInspection["resolvedSummary"],
+) {
+  const childItems = orderedEntries(document.items);
+  const parentItems = new Map((parent?.items ?? []).map((item) => [item.id, item]));
+
+  if (parentItems.size > 0) {
+    return Array.from(parentItems.values()).map((parentItem) => {
+      const override = document.items?.[parentItem.id];
+
+      return {
+        id: parentItem.id,
+        label: parentItem.label,
+        prompt: parentItem.prompt,
+        guidance:
+          override && override.guidance !== undefined
+            ? normalizeStringList(override.guidance)
+            : parentItem.guidance,
+        indicators:
+          override && override.indicators !== undefined
+            ? normalizeStringList(override.indicators)
+            : parentItem.indicators,
+      };
+    });
+  }
+
+  return childItems.map(([itemId, item]) => ({
+    id: itemId,
+    label: isNonEmptyString(item?.label) ? item.label : "Unnamed item",
+    prompt: isNonEmptyString(item?.prompt) ? item.prompt : "",
+    guidance: normalizeStringList(item?.guidance),
+    indicators: normalizeStringList(item?.indicators),
+  }));
 }
 
 function shallowResolveTemplate(
@@ -113,28 +255,159 @@ function shallowResolveTemplate(
   return {
     id: isNonEmptyString(document.id) ? document.id : parent?.id ?? "unknown",
     name: isNonEmptyString(document.name) ? document.name : parent?.name ?? "Untitled template",
-    kind: isNonEmptyString(document.kind) ? document.kind : parent?.kind ?? "unknown",
     summary: isNonEmptyString(document.summary) ? document.summary : parent?.summary ?? "",
-    dimensions:
-      Array.isArray(document.dimensions) && document.dimensions.length > 0
-        ? document.dimensions.map((dimension) => ({
-            id: isNonEmptyString(dimension?.id) ? dimension.id : "unknown-dimension",
-            label: isNonEmptyString(dimension?.label) ? dimension.label : "Unnamed dimension",
-            optionCount: Array.isArray(dimension?.options) ? dimension.options.length : 0,
-          }))
-        : parent?.dimensions ?? [],
-    items:
-      Array.isArray(document.items) && document.items.length > 0
-        ? document.items.map((item) => ({
-            id: isNonEmptyString(item?.id) ? item.id : "unknown-item",
-            label: isNonEmptyString(item?.label) ? item.label : "Unnamed item",
-            prompt: isNonEmptyString(item?.prompt) ? item.prompt : "",
-          }))
-        : parent?.items ?? [],
+    description:
+      isNonEmptyString(document.description) ? document.description : parent?.description ?? "",
+    guidance:
+      document.guidance !== undefined
+        ? normalizeStringList(document.guidance)
+        : parent?.guidance ?? [],
+    dimensions: resolveDimensions(document, parent),
+    items: resolveItems(document, parent),
   };
 }
 
-function validateTemplateDocument(document: TemplateDocument) {
+function validateDimensions(document: TemplateDocument) {
+  const issues: ValidationIssue[] = [];
+
+  if (document.dimensions === undefined) {
+    return issues;
+  }
+
+  if (!isRecord(document.dimensions)) {
+    issues.push({
+      level: "error",
+      message: "Dimensions must be a keyed map.",
+    });
+    return issues;
+  }
+
+  for (const [dimensionId, dimension] of orderedEntries(document.dimensions)) {
+    if (!isRecord(dimension)) {
+      issues.push({
+        level: "error",
+        message: `Dimension ${dimensionId} must be an object.`,
+      });
+      continue;
+    }
+
+    if (!isNonEmptyString(dimension.label)) {
+      issues.push({
+        level: "warning",
+        message: `Dimension ${dimensionId} is missing a label.`,
+      });
+    }
+
+    if (dimension.options !== undefined && !isRecord(dimension.options)) {
+      issues.push({
+        level: "error",
+        message: `Dimension ${dimensionId} options must be a keyed map.`,
+      });
+      continue;
+    }
+
+    for (const [optionId, option] of orderedEntries(dimension.options)) {
+      if (!isRecord(option)) {
+        issues.push({
+          level: "error",
+          message: `Option ${dimensionId}.${optionId} must be an object.`,
+        });
+        continue;
+      }
+
+      if (!isNonEmptyString(option.label)) {
+        issues.push({
+          level: "warning",
+          message: `Option ${dimensionId}.${optionId} is missing a label.`,
+        });
+      }
+    }
+  }
+
+  return issues;
+}
+
+function validateItems(
+  document: TemplateDocument,
+  parent: TemplateInspection["resolvedSummary"],
+) {
+  const issues: ValidationIssue[] = [];
+  const hasParent = parent !== null;
+  const parentItemIds = new Set((parent?.items ?? []).map((item) => item.id));
+
+  if (document.items === undefined) {
+    return issues;
+  }
+
+  if (!isRecord(document.items)) {
+    issues.push({
+      level: "error",
+      message: "Items must be a keyed map.",
+    });
+    return issues;
+  }
+
+  for (const [itemId, item] of orderedEntries(document.items)) {
+    if (!isRecord(item)) {
+      issues.push({
+        level: "error",
+        message: `Item ${itemId} must be an object.`,
+      });
+      continue;
+    }
+
+    if (hasParent) {
+      if (!parentItemIds.has(itemId)) {
+        issues.push({
+          level: "error",
+          message: `Inherited template item override does not match a parent item: ${itemId}.`,
+        });
+      }
+
+      if (item.label !== undefined || item.prompt !== undefined) {
+        issues.push({
+          level: "error",
+          message: `Inherited item override ${itemId} may not redefine label or prompt.`,
+        });
+      }
+    } else {
+      if (!isNonEmptyString(item.label)) {
+        issues.push({
+          level: "warning",
+          message: `Item ${itemId} is missing a label.`,
+        });
+      }
+
+      if (!isNonEmptyString(item.prompt)) {
+        issues.push({
+          level: "warning",
+          message: `Item ${itemId} is missing a prompt.`,
+        });
+      }
+    }
+
+    if (!isStringList(item.guidance)) {
+      issues.push({
+        level: "error",
+        message: `Item ${itemId} guidance must be a string or a list of strings.`,
+      });
+    }
+
+    if (!isStringList(item.indicators)) {
+      issues.push({
+        level: "error",
+        message: `Item ${itemId} indicators must be a string or a list of strings.`,
+      });
+    }
+  }
+
+  return issues;
+}
+
+function validateTemplateDocument(
+  document: TemplateDocument,
+  parent: TemplateInspection["resolvedSummary"],
+) {
   const issues: ValidationIssue[] = [];
 
   if (!isNonEmptyString(document.id)) {
@@ -145,74 +418,19 @@ function validateTemplateDocument(document: TemplateDocument) {
     issues.push({ level: "error", message: "Template name is missing." });
   }
 
-  if (!isNonEmptyString(document.kind)) {
-    issues.push({ level: "warning", message: "Template kind is missing." });
-  }
-
   if (!isNonEmptyString(document.summary)) {
     issues.push({ level: "warning", message: "Template summary is missing." });
   }
 
-  if (Array.isArray(document.dimensions)) {
-    const seenDimensionIds = new Set<string>();
-
-    for (const dimension of document.dimensions) {
-      if (!isNonEmptyString(dimension?.id)) {
-        issues.push({ level: "error", message: "A dimension is missing an id." });
-        continue;
-      }
-
-      if (seenDimensionIds.has(dimension.id)) {
-        issues.push({
-          level: "error",
-          message: `Duplicate dimension id: ${dimension.id}.`,
-        });
-      }
-
-      seenDimensionIds.add(dimension.id);
-
-      if (!isNonEmptyString(dimension.label)) {
-        issues.push({
-          level: "warning",
-          message: `Dimension ${dimension.id} is missing a label.`,
-        });
-      }
-    }
+  if (!isStringList(document.guidance)) {
+    issues.push({
+      level: "error",
+      message: "Template guidance must be a string or a list of strings.",
+    });
   }
 
-  if (Array.isArray(document.items)) {
-    const seenItemIds = new Set<string>();
-
-    for (const item of document.items) {
-      if (!isNonEmptyString(item?.id)) {
-        issues.push({ level: "error", message: "An item is missing an id." });
-        continue;
-      }
-
-      if (seenItemIds.has(item.id)) {
-        issues.push({
-          level: "error",
-          message: `Duplicate item id: ${item.id}.`,
-        });
-      }
-
-      seenItemIds.add(item.id);
-
-      if (!isNonEmptyString(item.label)) {
-        issues.push({
-          level: "warning",
-          message: `Item ${item.id} is missing a label.`,
-        });
-      }
-
-      if (!isNonEmptyString(item.prompt)) {
-        issues.push({
-          level: "warning",
-          message: `Item ${item.id} is missing a prompt.`,
-        });
-      }
-    }
-  }
+  issues.push(...validateDimensions(document));
+  issues.push(...validateItems(document, parent));
 
   return issues;
 }
@@ -252,11 +470,11 @@ export async function inspectTemplate(
     seen.add(current.id);
 
     let document: TemplateDocument | null = null;
+    let parentInspection: TemplateInspection | null = null;
 
     if (!current.parseError && !current.syncError) {
       try {
-        document = parseTemplate(await loadTemplateText(current.templatePath));
-        issues.push(...validateTemplateDocument(document));
+        document = parseTemplate(await loadTemplateText(current.templatePath, current.sourceText));
       } catch (error) {
         issues.push({
           level: "error",
@@ -266,7 +484,6 @@ export async function inspectTemplate(
     }
 
     const parentId = isNonEmptyString(document?.extends) ? document.extends : null;
-    let parentInspection: TemplateInspection | null = null;
 
     if (parentId) {
       const parentEntry = manifest.templates.find((candidate) => candidate.id === parentId);
@@ -279,6 +496,10 @@ export async function inspectTemplate(
       } else {
         parentInspection = await visit(parentEntry);
       }
+    }
+
+    if (document) {
+      issues.push(...validateTemplateDocument(document, parentInspection?.resolvedSummary ?? null));
     }
 
     return {

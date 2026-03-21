@@ -12,6 +12,7 @@
           .join("/");
         var route = location.pathname
           .slice(pathname.length)
+          .replace(/^\/+/, "")
           .replace(/&/g, "~and~");
         var search = location.search ? location.search.replace(/&/g, "~and~") : "";
         var nextUrl = pathname + "/?/" + route + search + location.hash;

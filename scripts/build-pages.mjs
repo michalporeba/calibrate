@@ -23,6 +23,7 @@ function writeTheme404(theme) {
           .join("/");
         var route = location.pathname
           .slice(pathname.length)
+          .replace(/^\\/+/, "")
           .replace(/&/g, "~and~");
         var search = location.search ? location.search.replace(/&/g, "~and~") : "";
         var nextUrl = pathname + "/?/" + route + search + location.hash;
@@ -154,7 +155,10 @@ writeFileSync(
         var segments = location.pathname.split("/");
         var keep = segments[2] === "me" || segments[2] === "gds" ? 2 : 1;
         var pathname = segments.slice(0, 1 + keep).join("/");
-        var route = location.pathname.slice(pathname.length).replace(/&/g, "~and~");
+        var route = location.pathname
+          .slice(pathname.length)
+          .replace(/^\\/+/, "")
+          .replace(/&/g, "~and~");
         var search = location.search ? location.search.replace(/&/g, "~and~") : "";
         var nextUrl = pathname + "/?/" + route + search + location.hash;
 

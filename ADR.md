@@ -115,6 +115,14 @@ The application should use a checked-in catalogue config to define which templat
 
 The browser application should load template catalogues and template source from served static assets generated from the local source directories. The app should not read repo files directly at runtime.
 
+### 26. Reflection templates may be complete without dimensions or scoring
+
+Reflection-oriented templates such as Gibbs and ERA may express useful end-to-end calibrations without context dimensions or scoring. The generic model should support that directly rather than forcing all templates toward assessment-style structure.
+
+### 27. First inheritance remains content-oriented
+
+The first inheritance model should allow narrow content overrides such as description, template guidance, item guidance, and indicators. Structural item replacement remains later work.
+
 ## UX and Design Constraints
 
 - The UI should support long, reflective tasks without overwhelming the user.

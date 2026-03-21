@@ -1,28 +1,67 @@
 id: gibbs
 name: Gibb's reflective model
-kind: self-reflection
 summary: >
   A standalone reflection template implementing Gibb's six-stage reflective
   model for structured personal learning.
 description: >
   This starter template follows the description, feelings, evaluation,
   analysis, conclusion, and action plan stages of Gibb's reflective model.
+guidance:
+  - Start with one concrete experience rather than trying to summarise a whole period of work.
+  - Write honestly and specifically enough that you could revisit this reflection later and still recognise what mattered.
+  - Focus on learning and future practice, not just on retelling the event.
 items:
-  - id: description
+  description:
     label: Description
     prompt: Describe what happened, including the context and the key events.
-  - id: feelings
+    guidance:
+      - Capture the setting, people involved, and the part of the event you want to reflect on.
+      - Keep the account factual before moving into interpretation.
+    indicators:
+      - The event is specific rather than general.
+      - The description gives enough context for the later stages to make sense.
+  feelings:
     label: Feelings
     prompt: What were you thinking and feeling during the experience?
-  - id: evaluation
+    guidance:
+      - Notice both immediate reactions and quieter concerns that became clearer afterwards.
+      - Record your perspective without trying to justify it yet.
+    indicators:
+      - Emotional reactions are named explicitly.
+      - Internal assumptions or pressures are visible.
+  evaluation:
     label: Evaluation
     prompt: What was helpful, effective, difficult, or uncomfortable about it?
-  - id: analysis
+    guidance:
+      - Consider both positive and negative aspects of the experience.
+      - Separate what went well from what was harder than expected.
+    indicators:
+      - Strengths and difficulties are both acknowledged.
+      - The judgement is grounded in the actual experience.
+  analysis:
     label: Analysis
     prompt: What sense do you make of the experience now, and why?
-  - id: conclusion
+    guidance:
+      - Look for patterns, causes, and contributing factors.
+      - Connect the experience to prior knowledge, practice, or expectations where useful.
+    indicators:
+      - The reflection moves beyond description into interpretation.
+      - Causes or patterns are explored rather than assumed.
+  conclusion:
     label: Conclusion
     prompt: What else could you have done, and what have you learned from it?
-  - id: action-plan
+    guidance:
+      - Draw out the main lessons from the experience.
+      - Consider realistic alternatives, not idealised ones.
+    indicators:
+      - Learning points are clear.
+      - Alternatives are thoughtful and relevant to the situation.
+  action-plan:
     label: Action plan
     prompt: What will you do next time, continue, or change in future practice?
+    guidance:
+      - Finish with a concrete next step or changed practice.
+      - Keep the plan realistic enough that you could revisit it later and act on it.
+    indicators:
+      - The next action is specific.
+      - The reflection leads to a meaningful change, continuation, or experiment.

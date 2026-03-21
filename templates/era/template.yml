@@ -1,18 +1,38 @@
 id: era
 name: ERA reflection cycle
-kind: self-reflection
 summary: >
   A very simple reflection template based on Experience, Reflection, and Action.
 description: >
   This starter template gives both hosted profiles a shared reflection example
   while remaining intentionally simple.
+guidance:
+  - Use this template when you want a shorter reflective record than Gibbs while still capturing learning and next action.
+  - Keep each stage concise, but specific enough to revisit later.
 items:
-  - id: experience
+  experience:
     label: Experience
     prompt: What happened, and what stands out from the experience?
-  - id: reflection
+    guidance:
+      - Record the key event or moment you are reflecting on.
+      - Focus on the parts of the experience that now feel significant.
+    indicators:
+      - The experience is concrete and recognisable.
+      - The most relevant details are captured without overexplaining.
+  reflection:
     label: Reflection
     prompt: What have you learned or noticed on reflection?
-  - id: action
+    guidance:
+      - Notice what the experience tells you about your practice, judgement, or assumptions.
+      - Capture the main learning point rather than listing every possible thought.
+    indicators:
+      - A clear insight or learning point is stated.
+      - The reflection goes beyond a simple recap.
+  action:
     label: Action
     prompt: What will you do differently, continue, or explore next?
+    guidance:
+      - End with one useful action, change, or area to explore.
+      - Make the action concrete enough to follow up later.
+    indicators:
+      - The next step is actionable.
+      - The action clearly follows from the reflection.

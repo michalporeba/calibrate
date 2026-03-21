@@ -142,7 +142,6 @@ export function ExplorePage() {
                         {entry.enabled ? "Enabled" : "Disabled"}
                       </span>
                     </span>
-                    <span className="explorer-template__meta">{entry.metadata.kind}</span>
                     <span className="explorer-template__summary">{entry.metadata.summary}</span>
                   </button>
                 </li>
@@ -200,10 +199,6 @@ function TemplateDetails({
             <dd>{entry.enabled ? "Enabled for this profile" : "Disabled for this profile"}</dd>
           </div>
           <div>
-            <dt>Kind</dt>
-            <dd>{entry.metadata.kind}</dd>
-          </div>
-          <div>
             <dt>Source</dt>
             <dd>{entry.source}</dd>
           </div>
@@ -213,6 +208,7 @@ function TemplateDetails({
           </div>
         </dl>
         <p>{entry.metadata.summary}</p>
+        {resolved?.description ? <p>{resolved.description}</p> : null}
       </section>
 
       <section className="content-block">
@@ -247,6 +243,19 @@ function TemplateDetails({
       </section>
 
       <section className="content-block">
+        <h3>Template guidance</h3>
+        {resolved?.guidance.length ? (
+          <ul className="resolved-list">
+            {resolved.guidance.map((guidance, index) => (
+              <li key={`${entry.id}-guidance-${index}`}>{guidance}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>No template-level guidance is defined.</p>
+        )}
+      </section>
+
+      <section className="content-block">
         <h3>Resolved summary</h3>
         {resolved ? (
           <>
@@ -269,9 +278,32 @@ function TemplateDetails({
               <article className="resolved-card">
                 <h4>Items</h4>
                 {resolved.items.length > 0 ? (
-                  <ul className="resolved-list">
+                  <ul className="resolved-item-list">
                     {resolved.items.map((item) => (
-                      <li key={item.id}>{item.label}</li>
+                      <li key={item.id} className="resolved-item">
+                        <h5>{item.label}</h5>
+                        <p>{item.prompt}</p>
+                        {item.guidance.length > 0 ? (
+                          <>
+                            <p className="resolved-item__label">Guidance</p>
+                            <ul className="resolved-list">
+                              {item.guidance.map((guidance, index) => (
+                                <li key={`${item.id}-guidance-${index}`}>{guidance}</li>
+                              ))}
+                            </ul>
+                          </>
+                        ) : null}
+                        {item.indicators.length > 0 ? (
+                          <>
+                            <p className="resolved-item__label">Indicators</p>
+                            <ul className="resolved-list">
+                              {item.indicators.map((indicator, index) => (
+                                <li key={`${item.id}-indicator-${index}`}>{indicator}</li>
+                              ))}
+                            </ul>
+                          </>
+                        ) : null}
+                      </li>
                     ))}
                   </ul>
                 ) : (

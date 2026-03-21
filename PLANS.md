@@ -61,3 +61,6 @@ Test and extend the model against other structured self-assessments and reflecti
 - `plans/002-dual-theme-architecture.md`
 - `plans/003-parallel-local-theme-development.md`
 - `plans/004-local-template-catalogue-and-explore.md`
+- `plans/005-reflective-template-model-expansion.md`
+- `plans/006-yaml-map-based-template-structure.md`
+- `plans/007-remove-template-kind.md`

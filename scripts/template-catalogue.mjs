@@ -57,30 +57,43 @@ function ensureArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function countEntries(value) {
+  if (Array.isArray(value)) {
+    return value.length;
+  }
+
+  if (typeof value === "object" && value !== null) {
+    return Object.keys(value).length;
+  }
+
+  return 0;
+}
+
 function readTemplateMetadata(templateFilePath, fallbackId) {
   try {
-    const template = readYamlFile(templateFilePath);
+    const sourceText = readFileSync(templateFilePath, "utf8");
+    const template = YAML.parse(sourceText);
 
     return {
       parseError: null,
+      sourceText,
       metadata: {
         id: isNonEmptyString(template?.id) ? template.id : fallbackId,
         name: isNonEmptyString(template?.name) ? template.name : fallbackId,
         summary: isNonEmptyString(template?.summary) ? template.summary : "",
-        kind: isNonEmptyString(template?.kind) ? template.kind : "unknown",
         extends: isNonEmptyString(template?.extends) ? template.extends : null,
-        dimensions: ensureArray(template?.dimensions).length,
-        items: ensureArray(template?.items).length,
+        dimensions: countEntries(template?.dimensions),
+        items: countEntries(template?.items),
       },
     };
   } catch (error) {
     return {
       parseError: error instanceof Error ? error.message : "Unable to parse YAML.",
+      sourceText: null,
       metadata: {
         id: fallbackId,
         name: fallbackId,
         summary: "",
-        kind: "unknown",
         extends: null,
         dimensions: 0,
         items: 0,
@@ -137,19 +150,19 @@ export function syncTemplateCatalogue() {
         cpSync(sourceDir, copiedDir, { recursive: true });
       }
 
-      const { metadata, parseError } = templateFileExists
+      const { metadata, parseError, sourceText } = templateFileExists
         ? readTemplateMetadata(templateFilePath, templateId)
         : {
             metadata: {
               id: templateId,
               name: templateId,
               summary: "",
-              kind: "unknown",
               extends: null,
               dimensions: 0,
               items: 0,
             },
             parseError: syncError ?? `Template entry file not found: ${entryFile}`,
+            sourceText: null,
           };
 
       return {
@@ -161,6 +174,7 @@ export function syncTemplateCatalogue() {
         parseError,
         metadata,
         templatePath: `generated/templates/${templateId}/${entryFile}`,
+        sourceText,
       };
     });
 
@@ -181,6 +195,7 @@ export function syncTemplateCatalogue() {
               metadata: template.metadata,
               parseError: template.parseError,
               syncError: template.syncError,
+              sourceText: template.sourceText,
             })),
           },
           null,

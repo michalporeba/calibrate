@@ -36,6 +36,8 @@ The first priority is GDaD capability self-assessment.
 
 Beyond that, Calibrate may support other structured self-assessments and self-reflection processes where the model is still coherent: defined criteria, optional guidance, recorded judgements, narrative evidence, and possible later review.
 
+Simple reflection templates should be able to work well without dimensions or scoring. Calibrate should not force every template into the same structure as a capability assessment.
+
 Calibrate is not intended to become a generic workflow engine, a catch-all form builder, or a broad platform for every evaluation process. The focus is on structured personal assessment and reflection that can still participate in formal review workflows.
 
 ## Product Outcomes

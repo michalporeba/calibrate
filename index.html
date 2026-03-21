@@ -22,7 +22,8 @@
           .split("&")
           .map((segment) => segment.replace(/~and~/g, "&"))
           .join("?");
-        const nextUrl = location.pathname.replace(/\/$/, "") + decoded + location.hash;
+        const nextUrl = (location.pathname.replace(/\/$/, "") + decoded + location.hash)
+          .replace(/([^:]\/)\/+/g, "$1");
 
         window.history.replaceState(null, "", nextUrl);
       })(window.location);
