@@ -175,11 +175,14 @@ a {
 
 .landing__definition,
 .page-frame__intro {
-  max-width: 34rem;
   margin: 1.5rem 0 0;
   color: var(--text-body);
   font-size: clamp(1.1rem, 2vw, 1.35rem);
   line-height: 1.6;
+}
+
+.landing__definition {
+  max-width: 34rem;
 }
 
 .landing__definition--supporting {
@@ -250,7 +253,7 @@ a {
 }
 
 .page-frame__lead {
-  max-width: 40rem;
+  max-width: none;
 }
 
 .page-frame__home {
@@ -454,10 +457,110 @@ a {
   font-weight: 700;
 }
 
+.flow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+}
+
+.flow-actions--end {
+  justify-content: flex-end;
+  max-width: 46rem;
+}
+
+.start-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  max-width: 46rem;
+}
+
+.start-card {
+  display: block;
+  padding: 1.35rem;
+  border: 1px solid var(--surface-edge);
+  border-radius: var(--radius-card);
+  background: var(--surface-bg);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(var(--backdrop-blur));
+}
+
+.start-card--link {
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.start-card--link:hover {
+  border-color: var(--accent);
+  box-shadow: 0 1.1rem 2.5rem rgba(8, 30, 24, 0.1);
+  transform: translateY(-1px);
+}
+
+.start-card--link:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-color: var(--accent);
+}
+
+.start-card--button {
+  width: 100%;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+}
+
+.start-card--button:hover {
+  border-color: var(--accent);
+  box-shadow: 0 1.1rem 2.5rem rgba(8, 30, 24, 0.1);
+  transform: translateY(-1px);
+}
+
+.start-card--button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-color: var(--accent);
+}
+
+.start-card--selected {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.start-card__body {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.start-card__title {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.start-card__summary {
+  margin: 0;
+  color: var(--text-body);
+  line-height: 1.6;
+}
+
 @media (max-width: 56rem) {
   .explorer-layout,
   .resolved-grid,
-  .explorer-definition-list {
+  .explorer-definition-list,
+  .start-grid {
     grid-template-columns: 1fr;
   }
 }

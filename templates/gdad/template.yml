@@ -52,7 +52,6 @@ dimensions:
         label: Grade 6 (G6)
   proficiency:
     label: Proficiency
-    prompt: Shared vocabulary for GDaD skill variants.
     options:
       awareness:
         label: Awareness

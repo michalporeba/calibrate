@@ -174,6 +174,7 @@ function assetPath(path: string) {
 function assetCandidates(path: string) {
   const candidates = [
     assetPath(path),
+    path,
     `/${path}`.replace(/\/+/g, "/"),
     new URL(path, window.location.href).pathname,
   ];

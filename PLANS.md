@@ -66,3 +66,4 @@ Test and extend the model against other structured self-assessments and reflecti
 - `plans/007-remove-template-kind.md`
 - `plans/008-gdad-template-structure.md`
 - `plans/009-generic-item-variants.md`
+- `plans/010-first-taker-calibration-flow.md`
