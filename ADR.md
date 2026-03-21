@@ -12,11 +12,11 @@ This document captures the decisions and constraints that should guide implement
 
 ### 1. Local-first architecture
 
-Calibrate is a local-first application. Personal assessment work must be possible with the user retaining direct control over their data rather than depending on a central service as the default mode.
+Calibrate is a local-first application. Personal calibration work must be possible with the user retaining direct control over their data rather than depending on a central service as the default mode.
 
-### 2. User-owned personal assessment data
+### 2. User-owned personal data
 
-Assessment records created for self-assessment and self-reflection are owned by the individual user. The system should preserve portability across roles, teams, and organisations.
+Calibration records created for self-assessment and self-reflection are owned by the individual user. The system should preserve portability across roles, teams, and organisations.
 
 ### 3. SOLID Pods as a foundational direction
 
@@ -24,57 +24,91 @@ SOLID Pods are a core architectural commitment for personal storage and identity
 
 ### 4. Organisational review as a required interoperability target
 
-Calibrate must support movement from personal assessment into organisational review, moderation, or submission workflows. The exact mechanism is not yet fixed, but support for institutional process is a core requirement.
+Calibrate must support movement from personal calibration into organisational review, moderation, or submission workflows. The exact mechanism is not yet fixed, but support for institutional process is a core requirement.
 
-### 5. External assessment templates
+### 5. External templates
 
-Assessment definitions should live outside the application codebase. Templates must be versionable and authorable with simple tools so they can be maintained without tightly coupling content changes to application releases.
+Template definitions should live outside the application codebase. Templates must be versionable and authorable with simple tools so they can be maintained without tightly coupling content changes to application releases.
 
-### 6. Assessment snapshot stability
+### 6. Calibration snapshot stability
 
-Once an assessment starts, the effective template content used by that assessment must be captured with the record. Later changes to a source template must not silently redefine an existing assessment.
+Once a calibration starts, the effective template content used by that calibration must be captured with the record. Later changes to a source template must not silently redefine an existing calibration.
 
-### 7. Assessment-neutral core model
+### 7. Template inheritance with overrides
 
-The core domain model should avoid hard-coding terminology from a single framework where abstraction is practical. GDaD is the first use case, but the model should support adjacent structured assessments without requiring a rewrite.
+Template customisation should be modelled as inheritance with overrides. Derived templates may narrow or extend upstream templates, and the model should allow multiple inheritance levels later if needed.
 
-### 8. Unbranded default presentation
+### 8. Generic core vocabulary
+
+The shared domain vocabulary should use `template`, `context`, `calibration`, `dimension`, `item`, and `author`. Package-specific labels such as role family, role, level, grade, skill, or question should be treated as template-level specialisations of those generic concepts.
+
+### 9. Shared entry with subtle author-tool access
+
+One public landing page should serve both takers and authors. The taker route is primary. Author support tools remain available from the same entry surface, but visually secondary.
+
+### 10. Taker-centred product shape
+
+The person taking a calibration is the primary UX centre. Author workflows exist to support that experience and may live in separate support tools while still sharing the same domain model.
+
+### 11. Context setup before calibration creation
+
+Context selection is an explicit step before creating a calibration. For GDaD-style templates, the default setup sequence is role family, then role, then level, followed by explicit confirmation.
+
+### 12. Freeze resolved template on start
+
+When a user confirms context, Calibrate should resolve template inheritance and context into the exact shape used by the calibration, then freeze that resolved form for the life of the calibration.
+
+### 13. Internal deduplication is allowed
+
+If two calibrations would freeze to the same resolved template, the implementation may internally reuse a shared resolved representation. This does not change the user-facing rule that each calibration starts from a frozen resolved template.
+
+### 14. Unbranded default presentation
 
 The default visual presentation should be light, clean, minimal, and not strongly branded. The product should feel modern and calm by default.
 
-### 9. Accessibility and responsiveness are baseline requirements
+### 15. Accessibility and responsiveness are baseline requirements
 
 Responsive behaviour and accessibility are core quality requirements from the start. They are not optional later-stage enhancements.
 
-### 10. User-centred interaction model
+### 16. User-centred interaction model
 
-The interaction model should prioritise clarity, focus, and low cognitive load, especially for long-form reflective work that combines guidance, scoring, and written evidence.
+The interaction model should prioritise clarity, focus, and low cognitive load, especially for long-form reflective work that combines guidance, selection, scoring, and written evidence.
 
-### 11. GDS compatibility without mandatory GDS branding
+### 17. Resumability is a first-class behaviour
+
+In-progress calibrations must be easy to re-enter and should be surfaced prominently in the main taker flow rather than hidden in a secondary area.
+
+### 18. GDS compatibility without mandatory GDS branding
 
 The product must support workflows and presentation patterns that fit naturally with the GOV.UK Design System. It must be possible to deliver a GDS-aligned theme, but the default product presentation does not need to inherit GOV.UK branding.
 
-### 12. Internationalisation from the start
+### 19. Internationalisation from the start
 
 The application should be designed for internationalisation from the beginning, initially supporting English and Welsh.
 
-### 13. Corporate/shared backends are secondary to personal capability
+### 20. Corporate/shared backends are secondary to personal capability
 
 Shared organisational storage and review backends are important, but they should not drive the architecture at the expense of the local-first personal experience.
 
 ## UX and Design Constraints
 
 - The UI should support long, reflective tasks without overwhelming the user.
-- Information architecture should separate framework guidance, user input, and progress status clearly.
+- Information architecture should separate template guidance, user input, and progress status clearly.
 - Mobile and desktop layouts should support the same core workflows.
 - Themes should be able to change visual presentation without changing product behaviour or content structure.
 - Accessibility expectations should include semantic structure, keyboard support, readable contrast, and screen-reader-friendly interaction patterns.
+- The landing page should stay minimal, with a primary taker action, a secondary explainer route, and subtle author-tool links.
+- The choose-a-template page should show in-progress calibrations prominently before curated template cards.
+- Starting from a catalogue card or a direct link should converge into the same context-setup flow.
+- Creating a calibration should require explicit confirmation before materialisation.
+- Once a calibration starts, its selected context should remain visible lightly in the header.
+- The minimum author-support surface is an explorer plus a read-only validator showing errors and resolved structure.
 
 ## Technical Constraints
 
-- Assessment templates must be loadable from external sources rather than embedded as hard-coded framework definitions.
+- Templates must be loadable from external sources rather than embedded as hard-coded framework definitions.
 - Template formats should remain simple enough to author and review with basic tooling.
-- Assessment records must preserve the versioned context needed to interpret them later.
+- Calibration records must preserve the versioned context needed to interpret them later.
 - The internal model should be compatible with personal RDF-based storage.
 - Authentication and identity flows should align with SOLID infrastructure.
 
@@ -87,7 +121,7 @@ The initial technology stack should be evaluated against Calibrate's product and
 - The default implementation assumption is TypeScript-first.
 - v1 should avoid a bespoke backend service unless later technical analysis proves one is necessary.
 - SOLID Pods are the primary personal storage mechanism.
-- Assessment templates may initially be hosted as static external content, including Git repositories.
+- Templates may initially be hosted as static external content, including Git repositories.
 
 ### Evaluation priorities
 
@@ -232,7 +266,8 @@ Decision: NextGraph is not the primary stack recommendation for v1. It is a prom
 
 ## Open Questions
 
-- What is the best mechanism for submitting or sharing a personal assessment into an organisational review workflow?
+- What is the best mechanism for submitting or sharing a personal calibration into an organisational review workflow?
 - How should template packages be distributed, discovered, and versioned in practice?
+- How should users add additional templates to their personal catalogue?
 - How tightly should GDS compatibility map to component implementation versus theme-level styling and layout conventions?
 - What is the right boundary between local-first offline capability and connected collaboration or review features?

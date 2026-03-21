@@ -8,31 +8,31 @@ Detailed, implementation-ready work should be defined in `plans/*.md`. `PLANS.md
 
 ### 1. Project foundations and core domain model
 
-Define the core concepts, vocabulary, and domain boundaries for assessments, templates, records, evidence, scoring, and review without locking the system to GDaD-specific terms.
+Define the core concepts, vocabulary, and domain boundaries for `template`, `context`, `calibration`, `dimension`, `item`, and review without locking the system to GDaD-specific terms.
 
-### 2. Template model and template-loading workflow
+### 2. Template model, inheritance, and validation workflow
 
-Define how assessment templates are authored, versioned, loaded, and interpreted so framework content can evolve independently of application code.
+Define how templates are authored, versioned, inherited, loaded, resolved, and interpreted so content can evolve independently of application code. This phase also establishes read-only explorer and validator tooling for text-authored templates.
 
-### 3. UX foundations, design system strategy, accessibility baseline, and responsive shell
+### 3. Shared entry, taker flow foundations, and responsive shell
 
-Establish the product’s core interaction model, layout system, accessibility baseline, responsive behaviour, and theming approach, including support for GDS-aligned presentation without making it the only visual style.
+Establish the landing page, explainer page, subtle author-tool entry, choose-a-template flow, in-progress surfacing, context setup, confirmation flow, accessibility baseline, responsive behaviour, and theming approach, including support for GDS-aligned presentation without making it the only visual style.
 
-### 4. Local-first personal assessment creation and storage
+### 4. Local-first calibration creation and resumability
 
-Deliver the first end-to-end ability for a user to create, edit, and retain a personal assessment record under their own control.
+Deliver the first end-to-end ability for a user to create, edit, resume, and retain a personal calibration under their own control, including freeze-on-start materialisation from resolved templates.
 
 ### 5. SOLID authentication and Pod-backed persistence
 
-Integrate SOLID-compatible authentication and persistence so personal records can be stored in user-controlled Pods as a first-class capability.
+Integrate SOLID-compatible authentication and persistence so personal template-catalogue state and calibration records can be stored in user-controlled Pods as a first-class capability.
 
-### 6. GDaD capability self-assessment as the first complete end-to-end template set
+### 6. GDaD capability template and first complete flow
 
-Provide the first fully realised assessment experience using the GDaD capability framework as the reference implementation and product proving ground.
+Provide the first fully realised calibration experience using the GDaD capability framework as the reference implementation and product proving ground for dimensions, context selection, resolved templates, and completion.
 
 ### 7. Submission, sharing, and organisational review flow
 
-Enable personal assessments to move into institutional workflows for review, moderation, or discussion without abandoning personal ownership and portability.
+Enable personal calibrations to move into institutional workflows for review, moderation, or discussion without abandoning personal ownership and portability.
 
 ### 8. Internationalisation and theme maturity
 
@@ -44,4 +44,13 @@ Explore assistive capabilities that help users assess whether their evidence and
 
 ### 10. Broader assessment-model extensions beyond GDaD
 
-Test and extend the model against other structured self-assessments and, where appropriate, more complex maturity-style assessments that still fit the product’s core design.
+Test and extend the model against other structured self-assessments and reflection-oriented templates that still fit the product’s core design.
+
+## Later Options
+
+- richer author support tools beyond explorer and validator
+- user flow for adding extra templates to a personal catalogue
+- separate history page for recent and historic calibrations
+- simple read-only reviewer view
+- additional reflection-oriented templates such as reflective log templates
+- broader template families beyond GDaD
