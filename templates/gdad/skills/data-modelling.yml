@@ -1,0 +1,28 @@
+id: data-modelling
+label: Data modelling
+summary: >
+  Designing and improving the structures used to store, relate, and interpret data.
+description: >
+  This skill covers how data is structured, how relationships are understood,
+  and how modelling choices support reliable use of data across services and systems.
+variants:
+  awareness:
+    summary: Understands the purpose of data models and common modelling patterns.
+    indicators:
+      - Can describe the difference between key data entities and relationships.
+      - Recognises why modelling choices affect later data use.
+  working:
+    summary: Contributes to data modelling work with support.
+    indicators:
+      - Can help update or refine an existing data model.
+      - Understands the practical effect of modelling decisions on delivery work.
+  proficient:
+    summary: Designs and improves data models in day-to-day delivery.
+    indicators:
+      - Produces sound models for routine service and platform needs.
+      - Balances clarity, reuse, and delivery constraints in modelling decisions.
+  expert:
+    summary: Leads complex modelling decisions and shapes modelling practice.
+    indicators:
+      - Resolves difficult modelling trade-offs across teams or domains.
+      - Sets direction for modelling standards, quality, and reuse.

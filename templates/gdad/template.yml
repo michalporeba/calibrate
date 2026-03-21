@@ -1,38 +1,68 @@
 id: gdad
 name: GDaD capability self-assessment
 summary: >
-  A stub capability template for structured reflection against a GDaD-style role,
-  level, and evidence model.
+  A structured capability template for exploring GDaD roles, role-levels,
+  grades, skills, and item variants without embedding the whole framework in
+  one file.
 description: >
-  This starter template proves the context-heavy calibration model. It should
-  later support role family, role, and level selection before a calibration is
-  created.
+  This template keeps small shared vocabularies inline and moves the large
+  GDaD catalogues into separate role and skill files. It is still a starter
+  structure, but it proves the shape needed for a much larger real framework.
+guidance:
+  - Choose a role family first, then a role, then the specific role-level that best matches your current work.
+  - The selected role-level will later determine which skills matter and which item variants should be used.
 dimensions:
   role-family:
     label: Role family
+    prompt: Select your role family.
     options:
+      architecture:
+        label: Architecture
+        summary: Roles concerned with technology direction, structure, and coherence.
       data:
         label: Data
+        summary: Roles concerned with data capability, analysis, engineering, and stewardship.
       design:
         label: Design
+        summary: Roles concerned with service, interaction, and experience design.
+      engineering:
+        label: Engineering
+        summary: Roles concerned with software, platforms, and technical delivery.
   role:
     label: Role
+    prompt: Select the role you are in.
+    source:
+      type: directory
+      path: roles
+  role-level:
+    label: Role level
+    prompt: Select the role level that best matches your current work.
+  grade:
+    label: Grade
     options:
-      data-analyst:
-        label: Data Analyst
-      interaction-designer:
-        label: Interaction Designer
-  level:
-    label: Level
+      eo:
+        label: Executive Officer (EO)
+      heo:
+        label: Higher Executive Officer (HEO)
+      seo:
+        label: Senior Executive Officer (SEO)
+      g7:
+        label: Grade 7 (G7)
+      g6:
+        label: Grade 6 (G6)
+  proficiency:
+    label: Proficiency
+    prompt: Shared vocabulary for GDaD skill variants.
     options:
-      practitioner:
-        label: Practitioner
-      senior-practitioner:
-        label: Senior Practitioner
+      awareness:
+        label: Awareness
+      working:
+        label: Working
+      proficient:
+        label: Proficient
+      expert:
+        label: Expert
 items:
-  capability:
-    label: Capability
-    prompt: Describe how you currently demonstrate the role capability.
-  evidence:
-    label: Evidence
-    prompt: Record examples that support your judgement.
+  source:
+    type: directory
+    path: skills

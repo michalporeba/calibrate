@@ -123,6 +123,33 @@ Reflection-oriented templates such as Gibbs and ERA may express useful end-to-en
 
 The first inheritance model should allow narrow content overrides such as description, template guidance, item guidance, and indicators. Structural item replacement remains later work.
 
+### 28. Large GDaD catalogues are split across role and skill files
+
+The GDaD template should keep small shared vocabularies inline in `template.yml`
+and move large catalogues into separate YAML files. Roles should be stored one
+per file, and shared skills should be stored one per file.
+
+### 29. Role-level is a dependent dimension
+
+For GDaD, `role-level` should be treated as a normal dimension in the shared
+model, but its options are supplied by the selected role rather than by a
+global inline option list. A role may belong to multiple role families, and the
+role supplies the available role-level options.
+
+### 30. Items may define generic variants
+
+Items may define a generic keyed `variants` map rather than using
+framework-specific variant naming. Variant content is a partial override of the
+base item and is not tied in schema to a specific dimension name.
+
+### 31. Selected dimension options contribute item configuration
+
+Dimension options may contribute items directly. If an option's `items` value
+is a list, it includes base items. If it is a keyed map, it includes items and
+selects the variant key to use for each item. This allows templates such as
+GDaD to drive skill selection and variant choice through role-level without
+hard-coding that behavior into the application.
+
 ## UX and Design Constraints
 
 - The UI should support long, reflective tasks without overwhelming the user.

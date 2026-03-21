@@ -1,0 +1,63 @@
+id: data-engineer
+label: Data Engineer
+families:
+  - data
+  - engineering
+summary: >
+  Builds, improves, and operates data pipelines and platforms that support
+  reliable analytical and operational use of data.
+description: >
+  Data Engineers work across data and engineering concerns. They shape data
+  movement, quality, and platform capability while balancing delivery,
+  operability, and maintainability.
+dimensions:
+  role-level:
+    options:
+      apprentice:
+        label: Apprentice Data Engineer
+        grade: eo
+        items:
+          data-modelling: awareness
+          data-pipelines: awareness
+          programming-and-build: awareness
+          data-platforms: awareness
+      junior:
+        label: Junior Data Engineer
+        grade: eo
+        items:
+          data-modelling: working
+          data-pipelines: working
+          programming-and-build: working
+          data-platforms: awareness
+      data-engineer:
+        label: Data Engineer
+        grade: heo
+        items:
+          data-modelling: proficient
+          data-pipelines: proficient
+          programming-and-build: proficient
+          data-platforms: working
+      senior:
+        label: Senior Data Engineer
+        grade: seo
+        items:
+          data-modelling: proficient
+          data-pipelines: proficient
+          programming-and-build: proficient
+          data-platforms: proficient
+      lead:
+        label: Lead Data Engineer
+        grade: g7
+        items:
+          data-modelling: expert
+          data-pipelines: expert
+          programming-and-build: proficient
+          data-platforms: proficient
+      principal:
+        label: Principal Data Engineer
+        grade: g6
+        items:
+          data-modelling: expert
+          data-pipelines: expert
+          programming-and-build: expert
+          data-platforms: expert

@@ -64,3 +64,5 @@ Test and extend the model against other structured self-assessments and reflecti
 - `plans/005-reflective-template-model-expansion.md`
 - `plans/006-yaml-map-based-template-structure.md`
 - `plans/007-remove-template-kind.md`
+- `plans/008-gdad-template-structure.md`
+- `plans/009-generic-item-variants.md`

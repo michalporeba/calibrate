@@ -122,6 +122,15 @@ The precise organisational backend model is not fixed yet. What is fixed is the 
 
 The first template-authoring path should stay local and offline-friendly. Template packages start as YAML files in local directories, with the application serving profile-specific template catalogues from those local sources.
 
+For larger frameworks such as GDaD, those local template packages may be split
+across multiple YAML files so the main template manifest stays readable. Small
+shared vocabularies can remain inline while larger role and skill catalogues
+live in dedicated subdirectories.
+
+Items may also define generic variants, with selected dimension options
+contributing which items are included and, where needed, which variant of an
+item should be used.
+
 ## AI and AICA
 
 AICA is part of how this project is developed. The README serves as a north star for future AICA-assisted design and implementation work by making the project intent, scope, and principles explicit.

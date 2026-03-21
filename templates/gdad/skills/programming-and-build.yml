@@ -1,0 +1,28 @@
+id: programming-and-build
+label: Programming and build
+summary: >
+  Writing, structuring, testing, and maintaining the code used to deliver data capability.
+description: >
+  This skill covers code quality, maintainability, build practices, and the
+  use of programming techniques to deliver dependable data engineering work.
+variants:
+  awareness:
+    summary: Understands the basics of code structure, versioning, and build practice.
+    indicators:
+      - Can follow established coding and build patterns.
+      - Recognises the value of testing and maintainability.
+  working:
+    summary: Contributes code and build changes with support.
+    indicators:
+      - Delivers small changes within existing patterns.
+      - Uses tests, reviews, and build tooling in normal work.
+  proficient:
+    summary: Produces maintainable code and build practices independently.
+    indicators:
+      - Chooses sound coding approaches for routine delivery work.
+      - Improves quality, readability, and build reliability over time.
+  expert:
+    summary: Shapes engineering quality and coding practice across broader work.
+    indicators:
+      - Leads on technical quality, patterns, and build strategy.
+      - Handles unusually complex or high-risk implementation concerns.

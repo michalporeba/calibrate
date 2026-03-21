@@ -1,0 +1,28 @@
+id: data-platforms
+label: Data platforms
+summary: >
+  Designing, operating, and improving the platforms and environments that support data capability.
+description: >
+  This skill covers platform thinking for storage, tooling, access, operational
+  concerns, and long-term maintainability of shared data capability.
+variants:
+  awareness:
+    summary: Understands the role that platforms play in delivering data services.
+    indicators:
+      - Can describe the main parts of a simple data platform.
+      - Recognises platform concerns such as access, reliability, and support.
+  working:
+    summary: Contributes to platform work with support.
+    indicators:
+      - Can operate or improve existing platform components safely.
+      - Understands how platform choices affect user teams and services.
+  proficient:
+    summary: Designs and improves platform capability in routine delivery.
+    indicators:
+      - Makes good platform choices for normal needs and constraints.
+      - Balances usability, operability, and sustainability in platform work.
+  expert:
+    summary: Leads platform direction and resolves complex platform trade-offs.
+    indicators:
+      - Shapes shared platform capability across multiple services or teams.
+      - Makes high-impact choices about platform evolution and technical direction.

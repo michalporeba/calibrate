@@ -188,6 +188,7 @@ function TemplateDetails({
 }) {
   const resolved = inspection?.resolvedSummary;
   const issues = inspection?.issues ?? [];
+  const structure = inspection?.structureSummary;
 
   return (
     <div className="explorer-details">
@@ -268,6 +269,7 @@ function TemplateDetails({
                     {resolved.dimensions.map((dimension) => (
                       <li key={dimension.id}>
                         {dimension.label} ({dimension.optionCount})
+                        {dimension.sourcePath ? ` from ${dimension.sourcePath}` : ""}
                       </li>
                     ))}
                   </ul>
@@ -316,6 +318,78 @@ function TemplateDetails({
           <p>The resolved output is not available yet for this template.</p>
         )}
       </section>
+
+      {structure && (structure.roles.length > 0 || structure.skills.length > 0) ? (
+        <section className="content-block">
+          <h3>External structure</h3>
+          <div className="resolved-grid">
+            <article className="resolved-card">
+              <h4>Roles</h4>
+              {structure.rolesPath ? <p>Source: {structure.rolesPath}</p> : null}
+              {structure.roles.length > 0 ? (
+                <ul className="resolved-item-list">
+                  {structure.roles.map((role) => (
+                    <li key={role.id} className="resolved-item">
+                      <h5>{role.label}</h5>
+                      <p>{role.id}</p>
+                      <p className="resolved-item__label">Families</p>
+                      <ul className="resolved-list">
+                        {role.families.map((familyId) => (
+                          <li key={`${role.id}-${familyId}`}>{familyId}</li>
+                        ))}
+                      </ul>
+                      <p className="resolved-item__label">Role-levels</p>
+                      <ul className="resolved-list">
+                        {role.roleLevels.map((roleLevel) => (
+                          <li key={`${role.id}-${roleLevel.id}`}>
+                            {roleLevel.label} ({roleLevel.grade}, {roleLevel.itemCount} items)
+                            {roleLevel.items.length > 0 ? (
+                              <ul className="resolved-list">
+                                {roleLevel.items.map((item) => (
+                                  <li key={`${role.id}-${roleLevel.id}-${item.id}`}>
+                                    {item.id}
+                                    {item.variant ? ` -> ${item.variant}` : ""}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No external roles defined.</p>
+              )}
+            </article>
+            <article className="resolved-card">
+              <h4>Skills</h4>
+              {structure.skillsPath ? <p>Source: {structure.skillsPath}</p> : null}
+              {structure.skills.length > 0 ? (
+                <ul className="resolved-item-list">
+                  {structure.skills.map((skill) => (
+                    <li key={skill.id} className="resolved-item">
+                      <h5>{skill.label}</h5>
+                      <p>{skill.summary || skill.id}</p>
+                      <p className="resolved-item__label">{skill.variantCount} variants</p>
+                      {skill.variants.length > 0 ? (
+                        <ul className="resolved-list">
+                          {skill.variants.map((variantId) => (
+                            <li key={`${skill.id}-${variantId}`}>{variantId}</li>
+                          ))}
+                        </ul>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No external skills defined.</p>
+              )}
+            </article>
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

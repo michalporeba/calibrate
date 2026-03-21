@@ -1,4 +1,13 @@
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import YAML from "yaml";
@@ -69,10 +78,60 @@ function countEntries(value) {
   return 0;
 }
 
+function collectSourceFiles(rootDir, currentDir = rootDir, files = {}) {
+  for (const entry of readdirSync(currentDir, { withFileTypes: true })) {
+    const entryPath = resolve(currentDir, entry.name);
+
+    if (entry.isDirectory()) {
+      collectSourceFiles(rootDir, entryPath, files);
+      continue;
+    }
+
+    if (!entry.isFile() || !/\.ya?ml$/i.test(entry.name)) {
+      continue;
+    }
+
+    const relativePath = entryPath.slice(rootDir.length + 1).replace(/\\/g, "/");
+    files[relativePath] = readFileSync(entryPath, "utf8");
+  }
+
+  return files;
+}
+
+function countDirectoryYamlFiles(rootDir, relativePath) {
+  if (!isNonEmptyString(relativePath)) {
+    return 0;
+  }
+
+  const directoryPath = resolve(rootDir, relativePath);
+
+  if (!existsSync(directoryPath) || !statSync(directoryPath).isDirectory()) {
+    return 0;
+  }
+
+  return readdirSync(directoryPath, { withFileTypes: true }).filter(
+    (entry) => entry.isFile() && /\.ya?ml$/i.test(entry.name),
+  ).length;
+}
+
 function readTemplateMetadata(templateFilePath, fallbackId) {
   try {
     const sourceText = readFileSync(templateFilePath, "utf8");
     const template = YAML.parse(sourceText);
+    const inlineItems =
+      typeof template?.items === "object" &&
+      template.items !== null &&
+      !Array.isArray(template.items) &&
+      !("source" in template.items)
+        ? countEntries(template.items)
+        : 0;
+    const externalItems =
+      typeof template?.items === "object" &&
+      template.items !== null &&
+      typeof template.items.source === "object" &&
+      template.items.source !== null
+        ? countDirectoryYamlFiles(dirname(templateFilePath), template.items.source.path)
+        : 0;
 
     return {
       parseError: null,
@@ -83,7 +142,7 @@ function readTemplateMetadata(templateFilePath, fallbackId) {
         summary: isNonEmptyString(template?.summary) ? template.summary : "",
         extends: isNonEmptyString(template?.extends) ? template.extends : null,
         dimensions: countEntries(template?.dimensions),
-        items: countEntries(template?.items),
+        items: inlineItems + externalItems,
       },
     };
   } catch (error) {
@@ -139,6 +198,7 @@ export function syncTemplateCatalogue() {
       const templateFileExists = sourceExists && existsSync(templateFilePath);
       const copiedDir = resolve(generatedTemplateRoot, templateId ?? "unknown");
       let syncError = null;
+      const files = sourceExists ? collectSourceFiles(sourceDir) : {};
 
       if (!isNonEmptyString(templateId)) {
         syncError = "Template entry is missing an id.";
@@ -175,6 +235,7 @@ export function syncTemplateCatalogue() {
         metadata,
         templatePath: `generated/templates/${templateId}/${entryFile}`,
         sourceText,
+        files,
       };
     });
 
@@ -196,6 +257,7 @@ export function syncTemplateCatalogue() {
               parseError: template.parseError,
               syncError: template.syncError,
               sourceText: template.sourceText,
+              files: template.files,
             })),
           },
           null,

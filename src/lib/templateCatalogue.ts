@@ -7,6 +7,7 @@ export type CatalogueTemplateEntry = {
   enabled: boolean;
   templatePath: string;
   sourceText?: string | null;
+  files?: Record<string, string>;
   metadata: {
     id: string;
     name: string;
@@ -26,16 +27,58 @@ export type CatalogueManifest = {
 
 type OrderedMap<T> = Record<string, T>;
 
+type SourceDirectoryDocument = {
+  type?: string;
+  path?: string;
+};
+
+type TemplateDimensionOptionDocument = {
+  label?: string;
+  summary?: string;
+  description?: string;
+  grade?: string;
+  items?: string[] | OrderedMap<string>;
+};
+
 type TemplateDimensionDocument = {
   label?: string;
-  options?: OrderedMap<{ label?: string }>;
+  prompt?: string;
+  options?: OrderedMap<TemplateDimensionOptionDocument>;
+  source?: SourceDirectoryDocument;
 };
 
 type TemplateItemDocument = {
   label?: string;
+  summary?: string;
+  description?: string;
   prompt?: string;
   guidance?: string | string[];
   indicators?: string | string[];
+  variants?: OrderedMap<Partial<Omit<TemplateItemDocument, "variants">>>;
+};
+
+type TemplateItemsDocument = OrderedMap<TemplateItemDocument> & {
+  source?: SourceDirectoryDocument;
+};
+
+type RoleDocument = {
+  id?: string;
+  label?: string;
+  families?: string | string[];
+  summary?: string;
+  description?: string;
+  dimensions?: OrderedMap<TemplateDimensionDocument>;
+};
+
+type SkillDocument = {
+  id?: string;
+  label?: string;
+  summary?: string;
+  description?: string;
+  guidance?: string | string[];
+  prompt?: string;
+  indicators?: string | string[];
+  variants?: OrderedMap<Partial<Omit<TemplateItemDocument, "variants">>>;
 };
 
 export type TemplateDocument = {
@@ -46,7 +89,7 @@ export type TemplateDocument = {
   guidance?: string | string[];
   extends?: string;
   dimensions?: OrderedMap<TemplateDimensionDocument>;
-  items?: OrderedMap<TemplateItemDocument>;
+  items?: TemplateItemsDocument;
 };
 
 export type ValidationIssue = {
@@ -57,7 +100,9 @@ export type ValidationIssue = {
 type ResolvedDimension = {
   id: string;
   label: string;
+  prompt: string;
   optionCount: number;
+  sourcePath: string | null;
 };
 
 type ResolvedItem = {
@@ -68,11 +113,45 @@ type ResolvedItem = {
   indicators: string[];
 };
 
+type ExternalRoleLevelSummary = {
+  id: string;
+  label: string;
+  grade: string;
+  itemCount: number;
+  items: Array<{
+    id: string;
+    variant: string | null;
+  }>;
+};
+
+type ExternalRoleSummary = {
+  id: string;
+  label: string;
+  families: string[];
+  roleLevels: ExternalRoleLevelSummary[];
+};
+
+type ExternalSkillSummary = {
+  id: string;
+  label: string;
+  summary: string;
+  variantCount: number;
+  variants: string[];
+};
+
+type TemplateStructureSummary = {
+  rolesPath: string | null;
+  roles: ExternalRoleSummary[];
+  skillsPath: string | null;
+  skills: ExternalSkillSummary[];
+};
+
 export type TemplateInspection = {
   entry: CatalogueTemplateEntry;
   document: TemplateDocument | null;
   issues: ValidationIssue[];
   inheritanceChain: string[];
+  structureSummary: TemplateStructureSummary;
   resolvedSummary: {
     id: string;
     name: string;
@@ -122,6 +201,10 @@ function normalizeStringList(value: unknown) {
   return [];
 }
 
+function normalizeIdList(value: unknown) {
+  return normalizeStringList(value);
+}
+
 function isStringList(value: unknown) {
   return (
     value === undefined ||
@@ -130,8 +213,38 @@ function isStringList(value: unknown) {
   );
 }
 
-function parseTemplate(text: string) {
-  return YAML.parse(text) as TemplateDocument;
+function isStringMap(value: unknown): value is OrderedMap<string> {
+  return isRecord(value) && Object.values(value).every((entry) => typeof entry === "string");
+}
+
+function isItemCollectionList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((entry) => typeof entry === "string");
+}
+
+function isItemCollectionMap(value: unknown): value is OrderedMap<string> {
+  return isStringMap(value);
+}
+
+function getOptionItems(option: TemplateDimensionOptionDocument | undefined) {
+  return option?.items;
+}
+
+function countOptionItems(option: TemplateDimensionOptionDocument | undefined) {
+  const items = getOptionItems(option);
+
+  if (isItemCollectionList(items)) {
+    return items.length;
+  }
+
+  if (isItemCollectionMap(items)) {
+    return Object.keys(items).length;
+  }
+
+  return 0;
+}
+
+function parseYamlDocument<T>(text: string) {
+  return YAML.parse(text) as T;
 }
 
 async function loadTemplateText(path: string, inlineSource?: string | null) {
@@ -195,9 +308,68 @@ function orderedEntries<T>(value: OrderedMap<T> | undefined): Array<[string, T]>
   return value ? Object.entries(value) : [];
 }
 
+function getDirectorySource(value: unknown) {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const source = value.source;
+
+  if (!isRecord(source)) {
+    return null;
+  }
+
+  return {
+    type: isNonEmptyString(source.type) ? source.type : "directory",
+    path: isNonEmptyString(source.path) ? source.path : null,
+  };
+}
+
+function getInlineItems(document: TemplateDocument) {
+  if (!isRecord(document.items)) {
+    return undefined;
+  }
+
+  return Object.fromEntries(
+    Object.entries(document.items).filter(([key]) => key !== "source"),
+  ) as OrderedMap<TemplateItemDocument>;
+}
+
+function getItemSource(document: TemplateDocument) {
+  return getDirectorySource(document.items);
+}
+
+function getRoleLevelOptions(role: RoleDocument) {
+  return role.dimensions?.["role-level"]?.options;
+}
+
+function collectRelatedDocuments(
+  entry: CatalogueTemplateEntry,
+  directoryPath: string | null,
+) {
+  if (!isNonEmptyString(directoryPath) || !entry.files) {
+    return [];
+  }
+
+  const prefix = `${directoryPath.replace(/\/+$/, "")}/`;
+
+  return Object.entries(entry.files)
+    .filter(([relativePath]) => relativePath.startsWith(prefix) && /\.ya?ml$/i.test(relativePath))
+    .map(([relativePath, sourceText]) => ({
+      path: relativePath,
+      sourceText,
+    }))
+    .sort((left, right) => left.path.localeCompare(right.path));
+}
+
+function countRoleLevelOptions(structureSummary: TemplateStructureSummary) {
+  return structureSummary.roles.reduce((count, role) => count + role.roleLevels.length, 0);
+}
+
 function resolveDimensions(
   document: TemplateDocument,
   parent: TemplateInspection["resolvedSummary"],
+  structureSummary: TemplateStructureSummary,
 ) {
   const ownDimensions = orderedEntries(document.dimensions);
 
@@ -205,23 +377,35 @@ function resolveDimensions(
     return parent?.dimensions ?? [];
   }
 
-  return ownDimensions.map(([dimensionId, dimension]) => ({
-    id: dimensionId,
-    label: isNonEmptyString(dimension?.label) ? dimension.label : "Unnamed dimension",
-    optionCount: orderedEntries(dimension?.options).length,
-  }));
+  return ownDimensions.map(([dimensionId, dimension]) => {
+    const source = getDirectorySource(dimension);
+    const optionCount =
+      source?.path && dimensionId === "role"
+        ? structureSummary.roles.length
+        : dimensionId === "role-level"
+          ? countRoleLevelOptions(structureSummary)
+        : orderedEntries(dimension?.options).length;
+
+    return {
+      id: dimensionId,
+      label: isNonEmptyString(dimension?.label) ? dimension.label : "Unnamed dimension",
+      prompt: isNonEmptyString(dimension?.prompt) ? dimension.prompt : "",
+      optionCount,
+      sourcePath: source?.path ?? null,
+    };
+  });
 }
 
 function resolveItems(
   document: TemplateDocument,
   parent: TemplateInspection["resolvedSummary"],
 ) {
-  const childItems = orderedEntries(document.items);
+  const inlineItems = orderedEntries(getInlineItems(document));
   const parentItems = new Map((parent?.items ?? []).map((item) => [item.id, item]));
 
   if (parentItems.size > 0) {
     return Array.from(parentItems.values()).map((parentItem) => {
-      const override = document.items?.[parentItem.id];
+      const override = getInlineItems(document)?.[parentItem.id];
 
       return {
         id: parentItem.id,
@@ -239,7 +423,7 @@ function resolveItems(
     });
   }
 
-  return childItems.map(([itemId, item]) => ({
+  return inlineItems.map(([itemId, item]) => ({
     id: itemId,
     label: isNonEmptyString(item?.label) ? item.label : "Unnamed item",
     prompt: isNonEmptyString(item?.prompt) ? item.prompt : "",
@@ -251,6 +435,7 @@ function resolveItems(
 function shallowResolveTemplate(
   document: TemplateDocument,
   parent: TemplateInspection["resolvedSummary"],
+  structureSummary: TemplateStructureSummary,
 ) {
   return {
     id: isNonEmptyString(document.id) ? document.id : parent?.id ?? "unknown",
@@ -262,7 +447,7 @@ function shallowResolveTemplate(
       document.guidance !== undefined
         ? normalizeStringList(document.guidance)
         : parent?.guidance ?? [],
-    dimensions: resolveDimensions(document, parent),
+    dimensions: resolveDimensions(document, parent, structureSummary),
     items: resolveItems(document, parent),
   };
 }
@@ -298,12 +483,42 @@ function validateDimensions(document: TemplateDocument) {
       });
     }
 
+    if (dimension.prompt !== undefined && !isNonEmptyString(dimension.prompt)) {
+      issues.push({
+        level: "warning",
+        message: `Dimension ${dimensionId} prompt is empty.`,
+      });
+    }
+
+    const source = getDirectorySource(dimension);
+
+    if (source && source.type !== "directory") {
+      issues.push({
+        level: "error",
+        message: `Dimension ${dimensionId} source type must be directory.`,
+      });
+    }
+
+    if (source && !source.path) {
+      issues.push({
+        level: "error",
+        message: `Dimension ${dimensionId} source is missing a path.`,
+      });
+    }
+
     if (dimension.options !== undefined && !isRecord(dimension.options)) {
       issues.push({
         level: "error",
         message: `Dimension ${dimensionId} options must be a keyed map.`,
       });
       continue;
+    }
+
+    if (source && orderedEntries(dimension.options).length > 0) {
+      issues.push({
+        level: "error",
+        message: `Dimension ${dimensionId} may not define inline options and a source at the same time.`,
+      });
     }
 
     for (const [optionId, option] of orderedEntries(dimension.options)) {
@@ -321,6 +536,19 @@ function validateDimensions(document: TemplateDocument) {
           message: `Option ${dimensionId}.${optionId} is missing a label.`,
         });
       }
+
+      const items = getOptionItems(option);
+
+      if (
+        items !== undefined &&
+        !isItemCollectionList(items) &&
+        !isItemCollectionMap(items)
+      ) {
+        issues.push({
+          level: "error",
+          message: `Option ${dimensionId}.${optionId} items must be a list of item ids or a keyed map of item ids to variant ids.`,
+        });
+      }
     }
   }
 
@@ -334,6 +562,8 @@ function validateItems(
   const issues: ValidationIssue[] = [];
   const hasParent = parent !== null;
   const parentItemIds = new Set((parent?.items ?? []).map((item) => item.id));
+  const source = getItemSource(document);
+  const inlineItems = getInlineItems(document);
 
   if (document.items === undefined) {
     return issues;
@@ -347,7 +577,28 @@ function validateItems(
     return issues;
   }
 
-  for (const [itemId, item] of orderedEntries(document.items)) {
+  if (source && source.type !== "directory") {
+    issues.push({
+      level: "error",
+      message: "Item source type must be directory.",
+    });
+  }
+
+  if (source && !source.path) {
+    issues.push({
+      level: "error",
+      message: "Item source is missing a path.",
+    });
+  }
+
+  if (source && orderedEntries(inlineItems).length > 0) {
+    issues.push({
+      level: "error",
+      message: "Items may not define inline entries and a source at the same time.",
+    });
+  }
+
+  for (const [itemId, item] of orderedEntries(inlineItems)) {
     if (!isRecord(item)) {
       issues.push({
         level: "error",
@@ -399,6 +650,44 @@ function validateItems(
         message: `Item ${itemId} indicators must be a string or a list of strings.`,
       });
     }
+
+    if (item.variants !== undefined && !isRecord(item.variants)) {
+      issues.push({
+        level: "error",
+        message: `Item ${itemId} variants must be a keyed map.`,
+      });
+      continue;
+    }
+
+    for (const [variantId, variant] of orderedEntries(item.variants)) {
+      if (!isRecord(variant)) {
+        issues.push({
+          level: "error",
+          message: `Item ${itemId} variant ${variantId} must be an object.`,
+        });
+        continue;
+      }
+
+      if (
+        variant.guidance !== undefined &&
+        !isStringList(variant.guidance)
+      ) {
+        issues.push({
+          level: "error",
+          message: `Item ${itemId} variant ${variantId} guidance must be a string or a list of strings.`,
+        });
+      }
+
+      if (
+        variant.indicators !== undefined &&
+        !isStringList(variant.indicators)
+      ) {
+        issues.push({
+          level: "error",
+          message: `Item ${itemId} variant ${variantId} indicators must be a string or a list of strings.`,
+        });
+      }
+    }
   }
 
   return issues;
@@ -435,6 +724,321 @@ function validateTemplateDocument(
   return issues;
 }
 
+function validateRoleDocument(role: RoleDocument, document: TemplateDocument) {
+  const issues: ValidationIssue[] = [];
+  const familyIds = new Set(
+    orderedEntries(document.dimensions?.["role-family"]?.options).map(([familyId]) => familyId),
+  );
+  const gradeIds = new Set(orderedEntries(document.dimensions?.grade?.options).map(([id]) => id));
+
+  if (!isNonEmptyString(role.id)) {
+    issues.push({ level: "error", message: "Role file is missing an id." });
+  }
+
+  if (!isNonEmptyString(role.label)) {
+    issues.push({
+      level: "warning",
+      message: `Role ${role.id ?? "unknown"} is missing a label.`,
+    });
+  }
+
+  const families = normalizeIdList(role.families);
+
+  if (families.length === 0) {
+    issues.push({
+      level: "error",
+      message: `Role ${role.id ?? "unknown"} must define at least one family.`,
+    });
+  }
+
+  for (const familyId of families) {
+    if (!familyIds.has(familyId)) {
+      issues.push({
+        level: "error",
+        message: `Role ${role.id ?? "unknown"} references an unknown role family: ${familyId}.`,
+      });
+    }
+  }
+
+  const roleLevelOptions = getRoleLevelOptions(role);
+
+  if (!isRecord(roleLevelOptions)) {
+    issues.push({
+      level: "error",
+      message: `Role ${role.id ?? "unknown"} must define dimensions.role-level.options.`,
+    });
+    return issues;
+  }
+
+  for (const [roleLevelId, roleLevel] of orderedEntries(roleLevelOptions)) {
+    if (!isRecord(roleLevel)) {
+      issues.push({
+        level: "error",
+        message: `Role-level ${role.id ?? "unknown"}.${roleLevelId} must be an object.`,
+      });
+      continue;
+    }
+
+    if (!isNonEmptyString(roleLevel.label)) {
+      issues.push({
+        level: "warning",
+        message: `Role-level ${role.id ?? "unknown"}.${roleLevelId} is missing a label.`,
+      });
+    }
+
+    if (!isNonEmptyString(roleLevel.grade)) {
+      issues.push({
+        level: "error",
+        message: `Role-level ${role.id ?? "unknown"}.${roleLevelId} is missing a grade.`,
+      });
+    } else if (!gradeIds.has(roleLevel.grade)) {
+      issues.push({
+        level: "error",
+        message: `Role-level ${role.id ?? "unknown"}.${roleLevelId} references an unknown grade: ${roleLevel.grade}.`,
+      });
+    }
+
+    const items = getOptionItems(roleLevel);
+
+    if (
+      items === undefined ||
+      (!isItemCollectionList(items) && !isItemCollectionMap(items)) ||
+      countOptionItems(roleLevel) === 0
+    ) {
+      issues.push({
+        level: "error",
+        message: `Role-level ${role.id ?? "unknown"}.${roleLevelId} must define items.`,
+      });
+    }
+  }
+
+  return issues;
+}
+
+function validateSkillDocument(skill: SkillDocument, document: TemplateDocument) {
+  const issues: ValidationIssue[] = [];
+
+  if (!isNonEmptyString(skill.id)) {
+    issues.push({ level: "error", message: "Skill file is missing an id." });
+  }
+
+  if (!isNonEmptyString(skill.label)) {
+    issues.push({
+      level: "warning",
+      message: `Skill ${skill.id ?? "unknown"} is missing a label.`,
+    });
+  }
+
+  if (!isStringList(skill.guidance)) {
+    issues.push({
+      level: "error",
+      message: `Skill ${skill.id ?? "unknown"} guidance must be a string or a list of strings.`,
+    });
+  }
+
+  if (!isStringList(skill.indicators)) {
+    issues.push({
+      level: "error",
+      message: `Skill ${skill.id ?? "unknown"} indicators must be a string or a list of strings.`,
+    });
+  }
+
+  if (!isRecord(skill.variants)) {
+    issues.push({
+      level: "error",
+      message: `Skill ${skill.id ?? "unknown"} must define variants.`,
+    });
+    return issues;
+  }
+
+  for (const [variantId, variant] of orderedEntries(skill.variants)) {
+    if (!isRecord(variant)) {
+      issues.push({
+        level: "error",
+        message: `Skill ${skill.id ?? "unknown"} variant ${variantId} must be an object.`,
+      });
+      continue;
+    }
+
+    if (!isStringList(variant.guidance)) {
+      issues.push({
+        level: "error",
+        message: `Skill ${skill.id ?? "unknown"} variant ${variantId} guidance must be a string or a list of strings.`,
+      });
+    }
+
+    if (!isStringList(variant.indicators)) {
+      issues.push({
+        level: "error",
+        message: `Skill ${skill.id ?? "unknown"} variant ${variantId} indicators must be a string or a list of strings.`,
+      });
+    }
+  }
+
+  return issues;
+}
+
+function summarizeRole(role: RoleDocument): ExternalRoleSummary {
+  const roleLevelOptions = getRoleLevelOptions(role);
+
+  return {
+    id: isNonEmptyString(role.id) ? role.id : "unknown-role",
+    label: isNonEmptyString(role.label) ? role.label : "Unnamed role",
+    families: normalizeIdList(role.families),
+    roleLevels: orderedEntries(roleLevelOptions).map(([roleLevelId, roleLevel]) => ({
+      id: roleLevelId,
+      label: isNonEmptyString(roleLevel?.label) ? roleLevel.label : "Unnamed role-level",
+      grade: isNonEmptyString(roleLevel?.grade) ? roleLevel.grade : "unknown",
+      itemCount: countOptionItems(roleLevel),
+      items: isItemCollectionList(roleLevel?.items)
+        ? roleLevel.items.map((itemId) => ({ id: itemId, variant: null }))
+        : orderedEntries(roleLevel?.items).map(([itemId, variantId]) => ({
+            id: itemId,
+            variant: isNonEmptyString(variantId) ? variantId : null,
+          })),
+    })),
+  };
+}
+
+function summarizeSkill(skill: SkillDocument): ExternalSkillSummary {
+  return {
+    id: isNonEmptyString(skill.id) ? skill.id : "unknown-skill",
+    label: isNonEmptyString(skill.label) ? skill.label : "Unnamed skill",
+    summary: isNonEmptyString(skill.summary) ? skill.summary : skill.description ?? "",
+    variantCount: orderedEntries(skill.variants).length,
+    variants: orderedEntries(skill.variants).map(([variantId]) => variantId),
+  };
+}
+
+function buildStructureSummary(
+  entry: CatalogueTemplateEntry,
+  document: TemplateDocument,
+  issues: ValidationIssue[],
+) {
+  const roleSource = getDirectorySource(document.dimensions?.role);
+  const itemSource = getItemSource(document);
+  const roleDocuments = collectRelatedDocuments(entry, roleSource?.path ?? null);
+  const skillDocuments = collectRelatedDocuments(entry, itemSource?.path ?? null);
+
+  const roles = roleDocuments.map((related) => {
+    try {
+      return parseYamlDocument<RoleDocument>(related.sourceText);
+    } catch (error) {
+      issues.push({
+        level: "error",
+        message:
+          error instanceof Error
+            ? `Unable to parse role file ${related.path}: ${error.message}`
+            : `Unable to parse role file ${related.path}.`,
+      });
+      return null;
+    }
+  });
+
+  const skills = skillDocuments.map((related) => {
+    try {
+      return parseYamlDocument<SkillDocument>(related.sourceText);
+    } catch (error) {
+      issues.push({
+        level: "error",
+        message:
+          error instanceof Error
+            ? `Unable to parse skill file ${related.path}: ${error.message}`
+            : `Unable to parse skill file ${related.path}.`,
+      });
+      return null;
+    }
+  });
+
+  const validRoles = roles.filter((role): role is RoleDocument => role !== null);
+  const validSkills = skills.filter((skill): skill is SkillDocument => skill !== null);
+
+  const skillIds = new Set<string>();
+
+  for (const skill of validSkills) {
+    issues.push(...validateSkillDocument(skill, document));
+
+    if (isNonEmptyString(skill.id)) {
+      if (skillIds.has(skill.id)) {
+        issues.push({
+          level: "error",
+          message: `Duplicate skill id found in external skill catalogue: ${skill.id}.`,
+        });
+      }
+
+      skillIds.add(skill.id);
+    }
+  }
+
+  const skillById = new Map(
+    validSkills
+      .filter((skill) => isNonEmptyString(skill.id))
+      .map((skill) => [skill.id, skill]),
+  );
+  const roleIds = new Set<string>();
+
+  for (const role of validRoles) {
+    issues.push(...validateRoleDocument(role, document));
+
+    if (isNonEmptyString(role.id)) {
+      if (roleIds.has(role.id)) {
+        issues.push({
+          level: "error",
+          message: `Duplicate role id found in external role catalogue: ${role.id}.`,
+        });
+      }
+
+      roleIds.add(role.id);
+    }
+
+    for (const [roleLevelId, roleLevel] of orderedEntries(getRoleLevelOptions(role))) {
+      const items = getOptionItems(roleLevel);
+
+      const mappedItems = isItemCollectionList(items)
+        ? items.map((itemId) => [itemId, null] as const)
+        : orderedEntries(items);
+
+      for (const [skillId, variantId] of mappedItems) {
+        if (!skillById.has(skillId)) {
+          issues.push({
+            level: "error",
+            message: `Role ${role.id ?? "unknown"}.${roleLevelId} references an unknown skill: ${skillId}.`,
+          });
+          continue;
+        }
+
+        const skill = skillById.get(skillId);
+
+        if (variantId === null) {
+          continue;
+        }
+
+        if (!isNonEmptyString(variantId)) {
+          issues.push({
+            level: "error",
+            message: `Role ${role.id ?? "unknown"}.${roleLevelId} assigns an empty variant for ${skillId}.`,
+          });
+          continue;
+        }
+
+        if (!skill?.variants || !(variantId in skill.variants)) {
+          issues.push({
+            level: "error",
+            message: `Skill ${skillId} does not define the required variant ${variantId}.`,
+          });
+        }
+      }
+    }
+  }
+
+  return {
+    rolesPath: roleSource?.path ?? null,
+    roles: validRoles.map(summarizeRole),
+    skillsPath: itemSource?.path ?? null,
+    skills: validSkills.map(summarizeSkill),
+  };
+}
+
 export async function inspectTemplate(
   entry: CatalogueTemplateEntry,
   manifest: CatalogueManifest,
@@ -463,6 +1067,12 @@ export async function inspectTemplate(
         document: null,
         issues,
         inheritanceChain: [current.id],
+        structureSummary: {
+          rolesPath: null,
+          roles: [],
+          skillsPath: null,
+          skills: [],
+        },
         resolvedSummary: null,
       };
     }
@@ -474,7 +1084,9 @@ export async function inspectTemplate(
 
     if (!current.parseError && !current.syncError) {
       try {
-        document = parseTemplate(await loadTemplateText(current.templatePath, current.sourceText));
+        document = parseYamlDocument<TemplateDocument>(
+          await loadTemplateText(current.templatePath, current.sourceText),
+        );
       } catch (error) {
         issues.push({
           level: "error",
@@ -502,15 +1114,25 @@ export async function inspectTemplate(
       issues.push(...validateTemplateDocument(document, parentInspection?.resolvedSummary ?? null));
     }
 
+    const structureSummary = document
+      ? buildStructureSummary(current, document, issues)
+      : {
+          rolesPath: null,
+          roles: [],
+          skillsPath: null,
+          skills: [],
+        };
+
     return {
       entry: current,
       document,
       issues: [...(parentInspection?.issues ?? []), ...issues],
       inheritanceChain: [...(parentInspection?.inheritanceChain ?? []), current.id],
+      structureSummary,
       resolvedSummary:
         document === null
           ? parentInspection?.resolvedSummary ?? null
-          : shallowResolveTemplate(document, parentInspection?.resolvedSummary ?? null),
+          : shallowResolveTemplate(document, parentInspection?.resolvedSummary ?? null, structureSummary),
     };
   };
 

@@ -1,0 +1,28 @@
+id: data-pipelines
+label: Data pipelines
+summary: >
+  Building and improving the flows that move, transform, and prepare data for use.
+description: >
+  This skill covers ingestion, transformation, orchestration, quality, and
+  operational thinking across the life of a data pipeline.
+variants:
+  awareness:
+    summary: Understands the basic purpose and shape of a data pipeline.
+    indicators:
+      - Can describe the key stages in a simple data flow.
+      - Recognises that quality, monitoring, and reliability matter.
+  working:
+    summary: Contributes to pipeline work with guidance.
+    indicators:
+      - Can make changes to an existing pipeline safely with support.
+      - Understands common failure modes and operational concerns.
+  proficient:
+    summary: Designs, builds, and improves pipelines in normal delivery work.
+    indicators:
+      - Creates maintainable data flows for routine needs.
+      - Makes sound technical choices about transformation and orchestration.
+  expert:
+    summary: Leads complex pipeline work and shapes engineering practice.
+    indicators:
+      - Designs pipeline approaches for difficult, high-risk, or large-scale cases.
+      - Guides standards and direction for reliable data movement and processing.
