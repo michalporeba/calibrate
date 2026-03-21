@@ -78,6 +78,11 @@ Calibrate should use a small and stable set of core concepts:
 
 Calibrate should feel clean, light, modern, and calm. The default presentation should be minimally branded and easy to adapt to different contexts.
 
+The hosted demo may present more than one predefined visual style. The default
+personal style should stay light and minimal, while a separate GDS-aligned
+variant should show how the same product can fit public-sector expectations
+without changing its core behaviour.
+
 The interaction design should favour:
 
 - simple navigation
@@ -118,6 +123,50 @@ The precise organisational backend model is not fixed yet. What is fixed is the 
 AICA is part of how this project is developed. The README serves as a north star for future AICA-assisted design and implementation work by making the project intent, scope, and principles explicit.
 
 AI may later become part of the product itself, for example by helping users judge whether their evidence matches a target proficiency level or by providing consistency-oriented feedback against the criteria of a calibration. That is a future capability, not a core v1 promise.
+
+## Development and Build
+
+Install dependencies with:
+
+```bash
+npm install
+```
+
+Run the personal theme locally on `http://localhost:5173/`:
+
+```bash
+npm run dev
+```
+
+Run the GDS-aligned theme locally on `http://localhost:5174/`:
+
+```bash
+npm run dev:gds
+```
+
+Run both local dev servers side by side:
+
+```bash
+npm run dev:all
+```
+
+Build the default single-theme app:
+
+```bash
+npm run build
+```
+
+Build the GitHub Pages demo artifact:
+
+```bash
+npm run build:pages
+```
+
+The Pages build publishes:
+
+- `/calibrate/` as a simple static chooser page
+- `/calibrate/me/` as the personal theme
+- `/calibrate/gds/` as the GDS-aligned theme
 
 ## Project Documents
 

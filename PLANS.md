@@ -54,3 +54,9 @@ Test and extend the model against other structured self-assessments and reflecti
 - simple read-only reviewer view
 - additional reflection-oriented templates such as reflective log templates
 - broader template families beyond GDaD
+
+## Active Feature Plans
+
+- `plans/001-first-user-flow.md`
+- `plans/002-dual-theme-architecture.md`
+- `plans/003-parallel-local-theme-development.md`

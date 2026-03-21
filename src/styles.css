@@ -1,18 +1,88 @@
 :root {
+  --focus: #005fcc;
+  --page-width: 76rem;
+  --page-padding: 1.5rem;
+  --radius-button: 999px;
+  --radius-card: 1.5rem;
+  --shadow: 0 18px 48px rgba(36, 42, 38, 0.08);
   --page-bg: #f6f3ec;
+  --page-bg-image:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.82), transparent 38%),
+    linear-gradient(180deg, #f9f7f2 0%, #f6f3ec 100%);
   --surface-bg: rgba(255, 255, 255, 0.78);
   --surface-edge: rgba(47, 50, 44, 0.08);
   --text-strong: #171d19;
   --text-body: #384039;
   --text-muted: #667267;
+  --link-color: #384039;
   --accent: #204b39;
   --accent-strong: #173a2c;
-  --focus: #005fcc;
-  --shadow: 0 18px 48px rgba(36, 42, 38, 0.08);
+  --button-text: #f8fbf7;
   --font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia,
     serif;
   --font-sans: "Avenir Next", "Segoe UI", "Helvetica Neue", "Nimbus Sans",
     sans-serif;
+  --heading-letter-spacing: -0.04em;
+  --heading-line-height: 0.94;
+  --heading-weight: 500;
+  --backdrop-blur: 12px;
+  --term-link-decoration: rgba(32, 75, 57, 0.3);
+  --term-link-decoration-hover: rgba(32, 75, 57, 0.6);
+}
+
+body[data-theme="me"] {
+  --page-bg: #f6f3ec;
+  --page-bg-image:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.82), transparent 38%),
+    linear-gradient(180deg, #f9f7f2 0%, #f6f3ec 100%);
+  --surface-bg: rgba(255, 255, 255, 0.78);
+  --surface-edge: rgba(47, 50, 44, 0.08);
+  --text-strong: #171d19;
+  --text-body: #384039;
+  --text-muted: #667267;
+  --link-color: #384039;
+  --accent: #204b39;
+  --accent-strong: #173a2c;
+  --button-text: #f8fbf7;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia,
+    serif;
+  --font-sans: "Avenir Next", "Segoe UI", "Helvetica Neue", "Nimbus Sans",
+    sans-serif;
+  --heading-letter-spacing: -0.04em;
+  --heading-line-height: 0.94;
+  --heading-weight: 500;
+  --radius-button: 999px;
+  --radius-card: 1.5rem;
+  --shadow: 0 18px 48px rgba(36, 42, 38, 0.08);
+  --backdrop-blur: 12px;
+  --term-link-decoration: rgba(32, 75, 57, 0.3);
+  --term-link-decoration-hover: rgba(32, 75, 57, 0.6);
+}
+
+body[data-theme="gds"] {
+  --page-bg: #ffffff;
+  --page-bg-image: none;
+  --surface-bg: #f3f2f1;
+  --surface-edge: #b1b4b6;
+  --text-strong: #0b0c0c;
+  --text-body: #0b0c0c;
+  --text-muted: #505a5f;
+  --link-color: #1d70b8;
+  --accent: #00703c;
+  --accent-strong: #005a30;
+  --button-text: #ffffff;
+  --font-serif: Arial, Helvetica, sans-serif;
+  --font-sans: Arial, Helvetica, sans-serif;
+  --heading-letter-spacing: normal;
+  --heading-line-height: 1.05;
+  --heading-weight: 700;
+  --page-width: 60rem;
+  --radius-button: 0;
+  --radius-card: 0;
+  --shadow: none;
+  --backdrop-blur: 0;
+  --term-link-decoration: rgba(29, 112, 184, 0.45);
+  --term-link-decoration-hover: rgba(29, 112, 184, 0.85);
 }
 
 * {
@@ -26,9 +96,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.82), transparent 38%),
-    linear-gradient(180deg, #f9f7f2 0%, var(--page-bg) 100%);
+  background: var(--page-bg-image), var(--page-bg);
   color: var(--text-body);
   font-family: var(--font-sans);
 }
@@ -61,7 +129,7 @@ a {
 
 .page-shell {
   min-height: 100vh;
-  padding: 1.5rem;
+  padding: var(--page-padding);
 }
 
 .page-shell--home {
@@ -70,7 +138,7 @@ a {
 
 .landing,
 .page-frame {
-  width: min(100%, 76rem);
+  width: min(100%, var(--page-width));
   margin: 0 auto;
 }
 
@@ -100,9 +168,9 @@ a {
   color: var(--text-strong);
   font-family: var(--font-serif);
   font-size: clamp(3.4rem, 8vw, 6.8rem);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 0.94;
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-letter-spacing);
+  line-height: var(--heading-line-height);
 }
 
 .landing__definition,
@@ -122,15 +190,15 @@ a {
 }
 
 .landing__term-link {
-  color: inherit;
+  color: var(--link-color);
   text-decoration-line: underline;
-  text-decoration-color: rgba(32, 75, 57, 0.3);
+  text-decoration-color: var(--term-link-decoration);
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.16em;
 }
 
 .landing__term-link:hover {
-  text-decoration-color: rgba(32, 75, 57, 0.6);
+  text-decoration-color: var(--term-link-decoration-hover);
 }
 
 .landing__actions,
@@ -148,9 +216,9 @@ a {
   justify-content: center;
   min-height: 3.5rem;
   padding: 0.85rem 1.35rem;
-  border-radius: 999px;
+  border-radius: var(--radius-button);
   background: var(--accent);
-  color: #f8fbf7;
+  color: var(--button-text);
   box-shadow: var(--shadow);
   font-weight: 700;
   text-decoration: none;
@@ -163,7 +231,7 @@ a {
 .text-link,
 .quiet-link,
 .page-frame__home {
-  color: var(--text-body);
+  color: var(--link-color);
   text-decoration-thickness: 0.08em;
   text-underline-offset: 0.18em;
 }
@@ -204,10 +272,10 @@ a {
   max-width: 46rem;
   padding: 1.5rem;
   border: 1px solid var(--surface-edge);
-  border-radius: 1.5rem;
+  border-radius: var(--radius-card);
   background: var(--surface-bg);
   box-shadow: var(--shadow);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--backdrop-blur));
 }
 
 .content-block h2 {

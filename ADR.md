@@ -82,11 +82,24 @@ In-progress calibrations must be easy to re-enter and should be surfaced promine
 
 The product must support workflows and presentation patterns that fit naturally with the GOV.UK Design System. It must be possible to deliver a GDS-aligned theme, but the default product presentation does not need to inherit GOV.UK branding.
 
-### 19. Internationalisation from the start
+### 19. Multiple predefined themes may be hosted
+
+The product may be published in more than one predefined visual variant from
+the same codebase. Theme choice for the public demo should happen at build or
+deployment level rather than as an in-app user preference.
+
+### 20. GDS-aligned does not mean GOV.UK-branded
+
+The GDS-aligned variant should follow GOV.UK Design System patterns where useful
+but must not imply that the product is an official GOV.UK service. Restricted
+identity elements such as the crown logo and the GDS Transport typeface should
+not be used in the non-government hosted demo.
+
+### 21. Internationalisation from the start
 
 The application should be designed for internationalisation from the beginning, initially supporting English and Welsh.
 
-### 20. Corporate/shared backends are secondary to personal capability
+### 22. Corporate/shared backends are secondary to personal capability
 
 Shared organisational storage and review backends are important, but they should not drive the architecture at the expense of the local-first personal experience.
 
