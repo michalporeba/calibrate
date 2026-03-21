@@ -2,7 +2,14 @@
 
 This document lists the high-level implementation order for Calibrate.
 
-Detailed, implementation-ready work should be defined in `plans/*.md`. `PLANS.md` is the roadmap, not the feature specification.
+`PLANS.md` is the roadmap, not the feature specification and not the record of
+current implemented behaviour.
+
+Use:
+
+- `features/*.md` for current system behaviour
+- `plans/*.md` for future implementation-ready work
+- `archive/plans/*.md` for historical implementation steps
 
 ## Roadmap
 
@@ -55,16 +62,6 @@ Test and extend the model against other structured self-assessments and reflecti
 - additional reflection-oriented templates such as reflective log templates
 - broader template families beyond GDaD
 
-## Active Feature Plans
+## Current Feature Reference
 
-- `plans/001-first-user-flow.md`
-- `plans/002-dual-theme-architecture.md`
-- `plans/003-parallel-local-theme-development.md`
-- `plans/004-local-template-catalogue-and-explore.md`
-- `plans/005-reflective-template-model-expansion.md`
-- `plans/006-yaml-map-based-template-structure.md`
-- `plans/007-remove-template-kind.md`
-- `plans/008-gdad-template-structure.md`
-- `plans/009-generic-item-variants.md`
-- `plans/010-first-taker-calibration-flow.md`
-- `plans/011-template-model-reference.md`
+Current implemented behaviour is documented in `features/*.md`.
