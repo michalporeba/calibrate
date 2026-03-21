@@ -61,7 +61,7 @@ The project should be guided by the following principles:
 - Privacy-aware by design. Personal records should avoid unnecessary identifying or bias-inducing information where possible.
 - Stable records over time. Once a calibration begins, the effective template content should be captured with it so later template changes do not corrupt meaning.
 - User-centred experience. The product should reduce friction for long-form reflective work and keep the focus on clarity, evidence, and progress.
-- Accessibility and responsiveness by default. These are baseline requirements, not polish work.
+- Accessibility and responsiveness by default. These are baseline requirements, not polish work, and they include meaningful semantic HTML structure rather than purely visual markup.
 
 ## Core Concepts
 

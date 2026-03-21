@@ -97,6 +97,9 @@ Shared organisational storage and review backends are important, but they should
 - Mobile and desktop layouts should support the same core workflows.
 - Themes should be able to change visual presentation without changing product behaviour or content structure.
 - Accessibility expectations should include semantic structure, keyboard support, readable contrast, and screen-reader-friendly interaction patterns.
+- Semantic HTML should be used where it expresses real document meaning, landmarks, or navigation structure.
+- Generic wrappers should remain `div` or `span` when they exist only for layout or styling.
+- Native HTML elements should be preferred over ARIA-decorated generic elements wherever the platform already provides the right semantics.
 - The landing page should stay minimal, with a primary taker action, a secondary explainer route, and subtle author-tool links.
 - The choose-a-template page should show in-progress calibrations prominently before curated template cards.
 - Starting from a catalogue card or a direct link should converge into the same context-setup flow.

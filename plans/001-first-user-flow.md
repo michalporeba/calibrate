@@ -42,6 +42,8 @@ It must contain:
 
 The landing page is shared by takers and authors. Takers are the primary audience. Support-tool access must remain visible but secondary.
 
+The implementation should use semantic landmarks and navigation elements where they add real meaning, while keeping layout-only grouping generic.
+
 ### 2. Explainer page
 
 The secondary CTA opens a separate explainer page.
@@ -54,6 +56,8 @@ The explainer should describe:
 - the difference between taking a calibration and using support tools
 
 The explainer is informational only. It does not contain detailed technical documentation.
+
+It should use semantic page structure where appropriate without replacing neutral layout wrappers mechanically.
 
 ### 3. Choose-a-template page
 
