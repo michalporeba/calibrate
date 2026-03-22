@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { PageFrame } from "../components/PageFrame";
-import { StorageNotice } from "../components/StorageNotice";
 import { useStorage } from "../components/StorageProvider";
 import { formatOccurredAt, listEntries, summariseBody, type CpdEntry } from "../lib/entries";
 
@@ -38,7 +37,7 @@ export function EventsPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [storage.dataVersion]);
 
   return (
     <PageFrame
@@ -53,26 +52,9 @@ export function EventsPage() {
           <Link className="text-link" to="/storage">
             Storage settings
           </Link>
-          {storage.mode === "solid-sync" && storage.isLoggedIn ? (
-            <button
-              className="button-secondary"
-              type="button"
-              disabled={storage.isSyncing}
-              onClick={() => {
-                storage
-                  .syncNow()
-                  .then(() => listEntries().then(setEntries))
-                  .catch(() => undefined);
-              }}
-            >
-              {storage.isSyncing ? "Syncing…" : "Sync now"}
-            </button>
-          ) : null}
         </div>
       }
     >
-      <StorageNotice />
-
       {isLoading ? <p>Loading your events…</p> : null}
 
       {error ? (

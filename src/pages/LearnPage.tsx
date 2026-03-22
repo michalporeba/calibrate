@@ -5,6 +5,7 @@ export function LearnPage() {
     <PageFrame
       title="What Calibrate is for"
       intro="Calibrate helps people keep professional development work in a form they can return to, understand, and carry with them."
+      showAppHeader={false}
     >
       <section className="content-block" id="simple">
         <h2>Simple</h2>

@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { PageFrame } from "../components/PageFrame";
-import { StorageNotice } from "../components/StorageNotice";
 import { useStorage } from "../components/StorageProvider";
 import { createEntry, type CreateCpdEntryInput, type EntryOccurredAt, type EntrySeason } from "../lib/entries";
 
@@ -185,9 +184,7 @@ export function RecordPage() {
 
     try {
       await createEntry(input);
-      if (storage.mode === "solid-sync" && storage.isLoggedIn) {
-        await storage.syncNow().catch(() => undefined);
-      }
+      storage.notifyLocalChange();
       navigate("/events");
     } catch (error) {
       setSaveError(
@@ -209,8 +206,6 @@ export function RecordPage() {
         </Link>
       }
     >
-      <StorageNotice />
-
       <section className="content-block">
         <h2>New entry</h2>
         <p>

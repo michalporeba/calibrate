@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type PropsWithChildren,
 } from "react";
@@ -34,14 +35,17 @@ type StorageContextValue = {
   lastSyncAt: string | null;
   syncError: string | null;
   isSyncing: boolean;
+  dataVersion: number;
   useLocalOnly: () => Promise<void>;
   connectToSolidPod: (issuer: string) => Promise<void>;
   disconnectFromSolidPod: () => Promise<void>;
   syncNow: () => Promise<void>;
+  notifyLocalChange: () => void;
 };
 
 const STORAGE_PREFERENCE_KEY = "calibrate.storage.preference";
 const DEFAULT_ISSUER = "http://localhost:3000";
+const AUTO_SYNC_INTERVAL_MS = 30_000;
 
 const StorageContext = createContext<StorageContextValue | null>(null);
 
@@ -99,6 +103,9 @@ export function StorageProvider({ children }: PropsWithChildren) {
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [dataVersion, setDataVersion] = useState(0);
+  const [pendingLocalChanges, setPendingLocalChanges] = useState(0);
+  const syncPromiseRef = useRef<Promise<void> | null>(null);
 
   async function syncStateFromSession() {
     const session = getDefaultSession();
@@ -199,6 +206,7 @@ export function StorageProvider({ children }: PropsWithChildren) {
     setPreference(nextPreference);
     setSyncError(null);
     setLastSyncAt(null);
+    setPendingLocalChanges(0);
 
     if (getDefaultSession().info.isLoggedIn) {
       await logout();
@@ -237,9 +245,14 @@ export function StorageProvider({ children }: PropsWithChildren) {
     setPodUrl(null);
     setEventsContainerUrl(null);
     setLastSyncAt(null);
+    setPendingLocalChanges(0);
   }
 
-  async function syncNow() {
+  function noteDataChanged() {
+    setDataVersion((current) => current + 1);
+  }
+
+  async function runSyncNow() {
     if (!getDefaultSession().info.isLoggedIn || !podUrl) {
       throw new Error("Connect to a Solid Pod before trying to sync.");
     }
@@ -258,6 +271,8 @@ export function StorageProvider({ children }: PropsWithChildren) {
       await upsertEntries(result.entries);
       setEventsContainerUrl(result.containerUrl);
       setLastSyncAt(result.syncedAt);
+      setPendingLocalChanges(0);
+      noteDataChanged();
     } catch (error) {
       setSyncError(
         error instanceof Error ? error.message : "Unable to sync with the Solid Pod.",
@@ -267,6 +282,52 @@ export function StorageProvider({ children }: PropsWithChildren) {
       setIsSyncing(false);
     }
   }
+
+  async function syncNow() {
+    if (syncPromiseRef.current) {
+      return syncPromiseRef.current;
+    }
+
+    const nextPromise = runSyncNow().finally(() => {
+      syncPromiseRef.current = null;
+    });
+
+    syncPromiseRef.current = nextPromise;
+    return nextPromise;
+  }
+
+  function notifyLocalChange() {
+    noteDataChanged();
+    setPendingLocalChanges((current) => current + 1);
+  }
+
+  useEffect(() => {
+    if (
+      preference.mode !== "solid-sync" ||
+      !isReady ||
+      !isLoggedIn ||
+      !podUrl ||
+      pendingLocalChanges === 0
+    ) {
+      return;
+    }
+
+    syncNow().catch(() => undefined);
+  }, [isLoggedIn, isReady, pendingLocalChanges, podUrl, preference.mode]);
+
+  useEffect(() => {
+    if (preference.mode !== "solid-sync" || !isReady || !isLoggedIn || !podUrl) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      syncNow().catch(() => undefined);
+    }, AUTO_SYNC_INTERVAL_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [isLoggedIn, isReady, podUrl, preference.mode]);
 
   return (
     <StorageContext.Provider
@@ -281,10 +342,12 @@ export function StorageProvider({ children }: PropsWithChildren) {
         lastSyncAt,
         syncError,
         isSyncing,
+        dataVersion,
         useLocalOnly,
         connectToSolidPod,
         disconnectFromSolidPod,
         syncNow,
+        notifyLocalChange,
       }}
     >
       {children}

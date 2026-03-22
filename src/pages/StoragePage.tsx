@@ -79,7 +79,7 @@ export function StoragePage() {
   return (
     <PageFrame
       title="Storage"
-      intro="Choose whether to keep your information only in this browser or connect a Solid Pod for synchronisation."
+      intro="Choose whether to keep your information only in this browser or connect a Solid Pod for automatic synchronisation."
       homeLabel="Back to Calibrate"
       actions={
         <Link className="text-link" to="/events">
@@ -133,6 +133,10 @@ export function StoragePage() {
         <p>
           Connect a Solid Pod if you want your events to sync to
           <code> /calibrate/events</code> in the pod.
+        </p>
+        <p>
+          Once connected, new events sync automatically and Calibrate also
+          checks the pod for newer changes while you are using it.
         </p>
         <div className="event-form">
           <div className="event-form__field">

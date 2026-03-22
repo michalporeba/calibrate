@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { PropsWithChildren, ReactNode } from "react";
+import { AppHeader } from "./AppHeader";
 
 type PageFrameProps = PropsWithChildren<{
   eyebrow?: string;
@@ -7,6 +8,7 @@ type PageFrameProps = PropsWithChildren<{
   intro: ReactNode;
   actions?: ReactNode;
   homeLabel?: string;
+  showAppHeader?: boolean;
 }>;
 
 export function PageFrame({
@@ -15,6 +17,7 @@ export function PageFrame({
   intro,
   actions,
   homeLabel = "Back to Calibrate",
+  showAppHeader = true,
   children,
 }: PageFrameProps) {
   return (
@@ -22,11 +25,14 @@ export function PageFrame({
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>
+      {showAppHeader ? <AppHeader /> : null}
       <main className="page-frame" id="main-content">
         <header className="page-frame__lead">
-          <Link className="page-frame__home" to="/">
-            {homeLabel}
-          </Link>
+          {!showAppHeader ? (
+            <Link className="page-frame__home" to="/">
+              {homeLabel}
+            </Link>
+          ) : null}
           {eyebrow ? <p className="page-frame__eyebrow">{eyebrow}</p> : null}
           <h1 className="page-frame__title">{title}</h1>
           <p className="page-frame__intro">{intro}</p>

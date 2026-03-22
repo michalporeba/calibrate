@@ -70,3 +70,5 @@ Current implemented behaviour is documented in `features/*.md`.
 
 - [Event recording and local storage](plans/event-recording-and-local-storage.md)
 - [Solid Pod sync and storage choice](plans/solid-pod-sync-and-storage-choice.md)
+- [Automatic sync and global storage status](plans/automatic-sync-and-global-storage-status.md)
+- [Application header and storage status](plans/application-header-and-storage-status.md)
