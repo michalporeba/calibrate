@@ -1,0 +1,16 @@
+services:
+  solid:
+    image: solidproject/community-server:latest
+    command:
+      - -c
+      - config/default.json
+      - --seedConfig
+      - /config/seed.json
+    ports:
+      - "3000:3000"
+    volumes:
+      - solid-data:/data
+      - ./docker/solid:/config:ro
+
+volumes:
+  solid-data:

@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { PageFrame } from "../components/PageFrame";
+import { StorageNotice } from "../components/StorageNotice";
+import { useStorage } from "../components/StorageProvider";
 import { formatOccurredAt, listEntries, summariseBody, type CpdEntry } from "../lib/entries";
 
 export function EventsPage() {
+  const storage = useStorage();
   const [entries, setEntries] = useState<CpdEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -43,11 +46,33 @@ export function EventsPage() {
       intro="Browse the events you have recorded over time and return to the ones that matter."
       homeLabel="Back to Calibrate"
       actions={
-        <Link className="button-primary" to="/record">
-          Record an event
-        </Link>
+        <div className="flow-actions">
+          <Link className="button-primary" to="/record">
+            Record an event
+          </Link>
+          <Link className="text-link" to="/storage">
+            Storage settings
+          </Link>
+          {storage.mode === "solid-sync" && storage.isLoggedIn ? (
+            <button
+              className="button-secondary"
+              type="button"
+              disabled={storage.isSyncing}
+              onClick={() => {
+                storage
+                  .syncNow()
+                  .then(() => listEntries().then(setEntries))
+                  .catch(() => undefined);
+              }}
+            >
+              {storage.isSyncing ? "Syncing…" : "Sync now"}
+            </button>
+          ) : null}
+        </div>
       }
     >
+      <StorageNotice />
+
       {isLoading ? <p>Loading your events…</p> : null}
 
       {error ? (

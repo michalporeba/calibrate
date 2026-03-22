@@ -219,3 +219,9 @@ export async function listEntries(): Promise<CpdEntry[]> {
 
   return entries.sort(compareEntriesNewestFirst);
 }
+
+export async function upsertEntries(entries: CpdEntry[]): Promise<void> {
+  await withStore("readwrite", async (store) => {
+    await Promise.all(entries.map((entry) => requestToPromise(store.put(entry))));
+  });
+}

@@ -124,6 +124,11 @@ The first persisted personal record is a standalone CPD entry recorded from the
 app. It is currently stored locally in IndexedDB using the app model, with a
 separate RDF mapping layer for later SOLID Pod persistence.
 
+The next storage layer allows the user to stay in local-only mode or connect a
+Solid Pod for event synchronisation. When connected, events sync to
+`/calibrate/events/` in the pod while IndexedDB remains the local working
+store.
+
 The first template-authoring path should stay local and offline-friendly. Template packages start as YAML files in local directories, with the application serving profile-specific template catalogues from those local sources.
 
 For larger frameworks such as GDaD, those local template packages may be split
@@ -177,6 +182,12 @@ Build the GitHub Pages demo artifact:
 
 ```bash
 npm run build:pages
+```
+
+Run the docker-backed Solid Pod integration harness:
+
+```bash
+npm run test:pod
 ```
 
 The Pages build publishes:

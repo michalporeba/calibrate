@@ -1,6 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
 import { PageFrame } from "../components/PageFrame";
+import { StorageNotice } from "../components/StorageNotice";
+import { useStorage } from "../components/StorageProvider";
 import { createEntry, type CreateCpdEntryInput, type EntryOccurredAt, type EntrySeason } from "../lib/entries";
 
 type Precision = EntryOccurredAt["precision"];
@@ -123,6 +125,7 @@ function validateForm(state: FormState): FormErrors {
 
 export function RecordPage() {
   const navigate = useNavigate();
+  const storage = useStorage();
   const [formState, setFormState] = useState<FormState>(initialFormState);
   const [errors, setErrors] = useState<FormErrors>({});
   const [saveError, setSaveError] = useState<string | null>(null);
@@ -182,6 +185,9 @@ export function RecordPage() {
 
     try {
       await createEntry(input);
+      if (storage.mode === "solid-sync" && storage.isLoggedIn) {
+        await storage.syncNow().catch(() => undefined);
+      }
       navigate("/events");
     } catch (error) {
       setSaveError(
@@ -203,6 +209,8 @@ export function RecordPage() {
         </Link>
       }
     >
+      <StorageNotice />
+
       <section className="content-block">
         <h2>New entry</h2>
         <p>
@@ -357,6 +365,9 @@ export function RecordPage() {
             </button>
             <Link className="text-link" to="/events">
               Browse events
+            </Link>
+            <Link className="text-link" to="/storage">
+              Storage settings
             </Link>
             <Link className="text-link" to="/learn#recording-events">
               Learn how event recording fits into Calibrate

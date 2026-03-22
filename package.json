@@ -9,15 +9,19 @@
     "dev:all": "concurrently -n me,gds -c green,blue \"npm run dev\" \"npm run dev:gds\"",
     "build": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && vite build",
     "build:pages": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && node scripts/build-pages.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:pod": "node scripts/test-pod.mjs"
   },
   "dependencies": {
+    "@inrupt/solid-client": "^3.0.0",
+    "@inrupt/solid-client-authn-browser": "^3.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.3.0",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",

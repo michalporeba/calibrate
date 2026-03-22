@@ -1,0 +1,11 @@
+[
+  {
+    "email": "tester@example.com",
+    "password": "password123",
+    "pods": [
+      {
+        "name": "calibrate-test"
+      }
+    ]
+  }
+]

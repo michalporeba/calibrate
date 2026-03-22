@@ -1,0 +1,43 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - link "Skip to content" [ref=e4] [cursor=pointer]:
+    - /url: "#main-content"
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - link "Back to Calibrate" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - heading "Storage" [level=1] [ref=e8]
+      - paragraph [ref=e9]: Choose whether to keep your information only in this browser or connect a Solid Pod for synchronisation.
+      - link "Back to events" [ref=e11] [cursor=pointer]:
+        - /url: /events
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - heading "Current mode" [level=2] [ref=e14]
+        - paragraph [ref=e15]: This browser is configured to use Solid Pod sync.
+        - paragraph [ref=e16]: Signed in as http://localhost:3000/calibrate-test/profile/card#me.
+        - alert [ref=e17]: No Solid Pod storage URL could be found for this account.
+      - generic [ref=e18]:
+        - heading "Use local storage only" [level=2] [ref=e19]
+        - paragraph [ref=e20]: Keep using Calibrate without connecting to a pod. Your saved events remain on this device only.
+        - button "Use local-only storage" [ref=e22]
+      - generic [ref=e23]:
+        - heading "Connect to a Solid Pod" [level=2] [ref=e24]
+        - paragraph [ref=e25]:
+          - text: Connect a Solid Pod if you want your events to sync to
+          - code [ref=e26]: /calibrate/events
+          - text: in the pod.
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: Identity provider
+            - textbox "Identity provider" [ref=e30]: http://localhost:3000
+            - paragraph [ref=e31]:
+              - text: For local development with the included Community Solid Server, use
+              - code [ref=e32]: http://localhost:3000
+              - text: .
+          - generic [ref=e33]:
+            - button "Connect to Solid Pod" [ref=e34]
+            - button "Sync now" [ref=e35]
+            - button "Disconnect" [ref=e36]
+```

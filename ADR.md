@@ -27,6 +27,8 @@ semantics belong in `TEMPLATE_MODEL.md`. Future feature sequencing belongs in
 - The first persisted personal record is a standalone CPD entry stored locally
   as an app model, with RDF used as a boundary representation for later Pod
   persistence.
+- Users must be able to continue in local-only mode or connect a Solid Pod for
+  synchronisation without losing the local-first working model.
 
 ### Template model and resolution
 
@@ -128,6 +130,8 @@ semantics belong in `TEMPLATE_MODEL.md`. Future feature sequencing belongs in
 - Local-first working storage may use app-shaped local persistence so long as a
   clear RDF mapping exists at the SOLID boundary.
 - Authentication and identity flows should align with SOLID infrastructure.
+- Local docker-based Pod infrastructure is acceptable for development and
+  automated integration testing.
 
 ## Stack Direction
 

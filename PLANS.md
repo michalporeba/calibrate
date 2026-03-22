@@ -69,3 +69,4 @@ Current implemented behaviour is documented in `features/*.md`.
 ## Current Planned Features
 
 - [Event recording and local storage](plans/event-recording-and-local-storage.md)
+- [Solid Pod sync and storage choice](plans/solid-pod-sync-and-storage-choice.md)
