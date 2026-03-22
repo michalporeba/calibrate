@@ -65,3 +65,7 @@ Test and extend the model against other structured self-assessments and reflecti
 ## Current Feature Reference
 
 Current implemented behaviour is documented in `features/*.md`.
+
+## Current Planned Features
+
+- [Event recording and local storage](plans/event-recording-and-local-storage.md)

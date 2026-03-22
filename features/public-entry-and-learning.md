@@ -18,6 +18,7 @@ Calibrate provides a minimal public landing page, a simple explainer page, and s
 - The landing page stays intentionally sparse, with one primary action, one secondary learning route, and subtle support-tool access.
 - The landing page now frames Calibrate as a place for continuous professional development and introduces both recording events and starting from templates.
 - The primary call to action is `Let's calibrate!`.
+- The landing page links directly to both `/record` and `/events`.
 - The learn page is informational and plain-language. It explains the product and its principles, but it is not technical documentation.
 - The learn page also explains recording events alongside reflection and assessment.
 - The support-tool entry is visible from the landing page, but intentionally secondary to the main start flow.
@@ -36,7 +37,7 @@ Scenario: Shared public entry
   Then they see a minimal explanation of Calibrate
   And they can choose to start or learn more
   And support-tool access is available but secondary
-  And subtle inline links can take them to recording events or template-driven work
+  And subtle inline links can take them to recording, browsing events, or template-driven work
 
 Scenario: Learn route
   Given a person wants more context

@@ -24,6 +24,9 @@ semantics belong in `TEMPLATE_MODEL.md`. Future feature sequencing belongs in
   organisational review, moderation, or submission workflows.
 - Shared organisational backends are important, but secondary to the
   local-first personal experience.
+- The first persisted personal record is a standalone CPD entry stored locally
+  as an app model, with RDF used as a boundary representation for later Pod
+  persistence.
 
 ### Template model and resolution
 
@@ -122,6 +125,8 @@ semantics belong in `TEMPLATE_MODEL.md`. Future feature sequencing belongs in
 - Calibration records must preserve the versioned context needed to interpret
   them later.
 - The internal model should remain compatible with personal RDF-based storage.
+- Local-first working storage may use app-shaped local persistence so long as a
+  clear RDF mapping exists at the SOLID boundary.
 - Authentication and identity flows should align with SOLID infrastructure.
 
 ## Stack Direction

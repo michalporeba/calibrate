@@ -120,6 +120,10 @@ Personal data storage should be built around SOLID Pods as a core architectural 
 
 The precise organisational backend model is not fixed yet. What is fixed is the requirement that Calibrate must bridge personal ownership and institutional process rather than choose one at the expense of the other.
 
+The first persisted personal record is a standalone CPD entry recorded from the
+app. It is currently stored locally in IndexedDB using the app model, with a
+separate RDF mapping layer for later SOLID Pod persistence.
+
 The first template-authoring path should stay local and offline-friendly. Template packages start as YAML files in local directories, with the application serving profile-specific template catalogues from those local sources.
 
 For larger frameworks such as GDaD, those local template packages may be split
