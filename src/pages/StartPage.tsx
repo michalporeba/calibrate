@@ -40,7 +40,15 @@ export function StartPage() {
   return (
     <PageFrame
       title="Select a template"
-      intro="Select a template to see more about it and begin the setup flow."
+      intro={
+        <>
+          Select a template or{" "}
+          <Link className="text-link" to="/record">
+            record an event
+          </Link>
+          .
+        </>
+      }
     >
       {isLoading ? <p>Loading available calibrations…</p> : null}
 

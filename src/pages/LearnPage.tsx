@@ -4,7 +4,7 @@ export function LearnPage() {
   return (
     <PageFrame
       title="What Calibrate is for"
-      intro="Calibrate helps people keep reflective and assessment work in a form they can return to, understand, and carry with them."
+      intro="Calibrate helps people keep professional development work in a form they can return to, understand, and carry with them."
     >
       <section className="content-block" id="simple">
         <h2>Simple</h2>
@@ -55,6 +55,20 @@ export function LearnPage() {
         </p>
       </section>
 
+      <section className="content-block" id="recording-events">
+        <h2>Recording events</h2>
+        <p>
+          Some useful professional development starts by capturing something
+          that happened: work you delivered, a difficult decision, feedback you
+          received, or an experience you want to return to later.
+        </p>
+        <p>
+          Calibrate should let you keep that kind of record over time, so it
+          can later stand on its own, become the starting point for reflection,
+          or contribute to evidence in a self-assessment.
+        </p>
+      </section>
+
       <section className="content-block" id="self-reflection">
         <h2>Self-reflection</h2>
         <p>
@@ -76,7 +90,8 @@ export function LearnPage() {
         </p>
         <p>
           Calibrate should help you do that honestly and clearly, while keeping
-          the resulting record useful long after the immediate process is over.
+          the resulting record useful long after the immediate process is over,
+          including when it draws on events you have already recorded.
         </p>
       </section>
     </PageFrame>

@@ -4,7 +4,7 @@ import type { PropsWithChildren, ReactNode } from "react";
 type PageFrameProps = PropsWithChildren<{
   eyebrow?: string;
   title: string;
-  intro: string;
+  intro: ReactNode;
   actions?: ReactNode;
   homeLabel?: string;
 }>;

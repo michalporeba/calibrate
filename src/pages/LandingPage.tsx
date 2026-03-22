@@ -31,15 +31,20 @@ export function LandingPage() {
             <Link className="landing__term-link" to="/learn#local-first">
               local-first
             </Link>{" "}
-            place to{" "}
-            <Link className="landing__term-link" to="/learn#self-reflection">
-              self-reflect
-            </Link>{" "}
-            or{" "}
-            <Link className="landing__term-link" to="/learn#self-assessment">
-              self-assess
-            </Link>{" "}
-            and return to it when it matters.
+            place for your continuous professional development (CPD). Here you
+            can{" "}
+            <Link className="landing__term-link" to="/record">
+              record
+            </Link>
+            {" "}or{" "}
+            <Link className="landing__term-link" to="/events">
+              browse events
+            </Link>
+            , or{" "}
+            <Link className="landing__term-link" to="/start">
+              reflect on your performance
+            </Link>
+            .
           </p>
           <nav aria-label="Primary actions" className="landing__actions">
             <Link className="button-primary" to="/start">
